@@ -33,7 +33,7 @@ import time
 from pathlib import Path
 
 from lamplighter.evidence import Bundle
-from lamplighter.llm import _CLAIMED, _NUMBER, LLMClient, LLMError, extract_json, ground, narrate
+from lamplighter.llm import _CLAIMED, _NUMBER, LLMClient, LLMError, extract_items, extract_json, ground, narrate
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "eval" / "fixtures" / "incidents.json"
@@ -118,7 +118,7 @@ class Recorder:
 
 def _raw_sentences(reply: str) -> list[str]:
     try:
-        parsed = extract_json(reply)
+        parsed, _ = extract_items(reply)
     except LLMError:
         return []
     out = []
@@ -146,16 +146,16 @@ def judge_context(fixture: dict) -> list[str]:
 def narrative_run(client: LLMClient, fixture: dict, judge=None) -> dict:
     bundle = Bundle.from_dict(fixture["bundle"])
     recorder = Recorder(client)
-    row = {"scenario": fixture["scenario"], "parsed": False, "produced": 0, "kept": 0, "removed": 0,
+    row = {"scenario": fixture["scenario"], "parsed": False, "repaired": False, "produced": 0, "kept": 0, "removed": 0,
            "names_component": None, "faithfulness_raw": None, "faithfulness_kept": None, "error": None}
     try:
         result = narrate(recorder, bundle, fixture["diagnosis"], fixture["outcome"])
     except LLMError as exc:
-        row["error"] = str(exc)
+        row["error"] = f"{exc} (reply was {len(recorder.last)} characters, ending {recorder.last[-60:]!r})"
         return row
     kept = [i["text"] for i in result["narrative"] + result["next_steps"]]
     raw = _raw_sentences(recorder.last)
-    row.update(parsed=True, kept=len(kept), removed=result["dropped_ungrounded"],
+    row.update(parsed=True, repaired=result["repaired"], kept=len(kept), removed=result["dropped_ungrounded"],
                produced=len(kept) + result["dropped_ungrounded"])
     accepted = next((h for h in fixture["diagnosis"]["hypotheses"] if h["accepted"]), None)
     if accepted is not None:
@@ -293,7 +293,9 @@ def render(results: dict) -> str:
                      f"{_mean([r['faithfulness_raw'] for r in mine])} | {_mean([r['faithfulness_kept'] for r in mine])} |")
     produced, removed = sum(r["produced"] for r in rows), sum(r["removed"] for r in rows)
     lines += ["",
-              f"**Totals:** {sum(r['parsed'] for r in rows)}/{len(rows)} replies parsed; {produced} sentences produced, "
+              f"**Totals:** {sum(r['parsed'] for r in rows)}/{len(rows)} replies parsed "
+              f"({sum(r.get('repaired', False) for r in rows)} of them not valid JSON as written and recovered item "
+              f"by item); {produced} sentences produced, "
               f"{removed} removed by the filter ({(100 * removed / produced if produced else 0):.0f}%); mean faithfulness "
               f"{_mean([r['faithfulness_raw'] for r in rows])} before the filter and "
               f"{_mean([r['faithfulness_kept'] for r in rows])} after.", "",

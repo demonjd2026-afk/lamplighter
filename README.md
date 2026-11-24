@@ -49,8 +49,14 @@ that stands between the model and the postmortem was given 419 labelled sentence
 incidents: it dropped 350 of 350 fabrications of the kinds it is built for (changed numbers, invented or
 missing citations, numbers borrowed from other evidence, malformed items) and kept 69 of 69 faithful ones.
 It does not catch a false claim that has no number and cites a real evidence id (0 of 20), which is why
-model text never feeds a decision. With a key set, the same command scores a live model's narratives with
-DeepEval's faithfulness metric, before and after the filter.
+model text never feeds a decision.
+
+With `claude-haiku-5-5` writing 15 narratives over the same five incidents: 15 of 15 replies were usable
+(one was malformed JSON and was recovered item by item), 146 sentences were produced and the filter removed
+4, and every narrative named the diagnosed component. DeepEval's faithfulness metric, judged by the same
+model, averaged 0.96 before the filter and 0.95 after, so on this model the filter removes little and the
+judge sees no measurable difference. In 3 of 3 runs the model's patch for the broken release passed the
+sandbox replay; such a patch is marked plausible and left for human review.
 
 The scenario the naive responder always gets wrong is the instructive one: a dependency hangs eight seconds
 after an unrelated deploy. Lamplighter rejects the deploy as a cause (the failures are not raised by that
@@ -82,7 +88,7 @@ says what a correct response is. Watch the street react, then read the incident 
 their routes exist only in the demo; `lamplighter run` does not have them.
 
 ```bash
-pytest                 # 102 fast tests (103 with the evals extra installed)
+pytest                 # 103 fast tests (104 with the evals extra installed)
 pytest --e2e           # plus 3 end-to-end tests against real processes (about 3 minutes)
 python -m eval.run_eval --runs 3   # the evaluation above (about 25 minutes)
 python -m eval.model_eval          # the guard benchmark: offline, no key, a few seconds

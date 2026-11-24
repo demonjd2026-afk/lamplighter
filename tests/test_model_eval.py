@@ -69,3 +69,15 @@ def test_deepeval_judge_scores_through_the_project_client():
                         "verdicts": [{"verdict": "yes"}, {"verdict": "no", "reason": "not in the evidence"}]})
     judge = model_eval.deepeval_judge(Scripted(reply), "scripted")
     assert judge("checkout failed. the moon is green.", ["checkout failed"]) == 0.5
+
+
+def test_a_reply_cut_off_mid_sentence_keeps_its_complete_items():
+    fixture = model_eval.load_fixtures()[0]
+    first = Bundle.from_dict(fixture["bundle"]).items[0]
+    whole = json.dumps({"narrative": [{"text": first.summary, "evidence": [first.id]},
+                                      {"text": "Exactly 7919 customers were affected.", "evidence": [first.id]}],
+                        "next_steps": [{"text": first.summary, "evidence": [first.id]},
+                                       {"text": "This one is cut off before it ends", "evidence": [first.id]}]})
+    cut = "```json\n" + whole[:whole.rindex("cut off") + 4]
+    row = model_eval.narrative_run(Scripted(cut), fixture)
+    assert (row["parsed"], row["repaired"], row["kept"], row["removed"]) == (True, True, 2, 1)

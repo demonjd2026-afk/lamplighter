@@ -25,4 +25,20 @@ Sentences built from the recorded evidence, then corrupted in a known way. The f
 
 ## 2. Model narratives
 
-Not run. Set `LAMPLIGHTER_LLM_PROVIDER`, `LAMPLIGHTER_LLM_MODEL` and `LAMPLIGHTER_LLM_API_KEY`, then run `python -m eval.model_eval --runs 3 --judge --patch-runs 3`.
+Model: `claude-haiku-5-5` (anthropic). 15 narratives (3 per incident).
+
+| Incident | Replies parsed | Sentences produced | Removed by the filter | Names the diagnosed component | Faithfulness before filter | Faithfulness after filter |
+|---|---|---|---|---|---|---|
+| `bad_release` | 3/3 | 28 | 0 | 3/3 | 1.00 | 0.97 |
+| `bad_config` | 3/3 | 28 | 0 | 3/3 | 0.89 | 0.88 |
+| `dependency_stuck` | 3/3 | 30 | 1 | 3/3 | 1.00 | 0.97 |
+| `process_crash` | 3/3 | 30 | 2 | 3/3 | 1.00 | 0.95 |
+| `external_dependency` | 3/3 | 30 | 1 | 3/3 | 0.93 | 0.95 |
+
+**Totals:** 15/15 replies parsed (1 of them not valid JSON as written and recovered item by item); 146 sentences produced, 4 removed by the filter (3%); mean faithfulness 0.96 before the filter and 0.95 after.
+
+Faithfulness is DeepEval's `FaithfulnessMetric`: the share of claims in the text that the evidence supports, from 0 to 1. The judge is the same model that wrote the narrative, so treat it as a second reading, not ground truth.
+
+## 3. Model patches
+
+3 runs of the broken-release scenario with patching on. The model proposes a fix to the failing file; it is screened, then replayed in a sandbox against the failing requests and recorded healthy traffic. Result: 3 plausible. A plausible patch is written to a file for review. It is never deployed.
