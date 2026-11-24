@@ -135,5 +135,11 @@ def test_demo_fault_routes_exist_only_in_the_demo_and_cannot_be_triggered_cross_
     assert demo.post("/v1/demo/scenarios/bad_release", headers={"X-Lamplighter-Demo": "1"}).status_code == 409
     assert demo.post("/v1/demo/scenarios/reset", headers={"X-Lamplighter-Demo": "1"}).status_code == 200
     assert fired == [1, "reset"]
+    settled = TestClient(create_app(settings(tmp_path / "s", public_read=True), Store(tmp_path / "s.db"), tel,
+                                    orch, demo=hooks))
+    tel.change("chg-1", time.time() - 5, "deploy", "checkout", "v1", "v2")       # a human change 5 seconds ago
+    assert settled.get("/v1/status").json()["inputs"]["settling_s"] > 0
+    assert settled.post("/v1/demo/scenarios/bad_release", headers={"X-Lamplighter-Demo": "1"}).status_code == 409
+    assert settled.post("/v1/demo/scenarios/reset", headers={"X-Lamplighter-Demo": "1"}).status_code == 200
     status = demo.get("/v1/status").json()
     assert status["inputs"]["environment"] == "demo shop" and status["inputs"]["policy"]["restart"] == "approval"

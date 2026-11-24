@@ -101,6 +101,14 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
         if not _token_ok(request):
             raise HTTPException(401, "a valid API token is required", headers={"WWW-Authenticate": "Bearer"})
 
+    def settling(now: float) -> float:
+        """Seconds until the latest human change leaves the suspect window. A fault injected sooner would be
+        judged alongside that change, so the demo waits it out to keep each fault a clean, single-cause test."""
+        lag = settings.timing.change_lag_s
+        recent = [c["ts"] for c in telemetry.changes(now - lag, now)
+                  if c.get("actor") != "lamplighter" and c.get("kind") in ("deploy", "config")]
+        return max(0.0, lag - (now - max(recent))) if recent else 0.0
+
     def _incident(incident_id: str) -> dict:
         if not INCIDENT_ID.match(incident_id):
             raise HTTPException(404, "no such incident")
@@ -187,7 +195,8 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
         inputs = {"changes": redact(recent_changes), "services": len(nodes),
                   "records_per_s": round(sum(n["per_s"] for n in nodes.values()) + sum(e["calls"] for e in edges) / span, 0),
                   "policy": {kind: _effective_tier(policy.mode, rule.tier) for kind, rule in policy.rules.items()},
-                  "max_actions_per_hour": policy.max_actions_per_hour, "environment": "demo shop" if demo else "production"}
+                  "max_actions_per_hour": policy.max_actions_per_hour, "environment": "demo shop" if demo else "production",
+                  "settling_s": round(settling(now), 0) if demo and not store.list_incidents(open_only=True) else 0}
         return {"now": now, "services": out, "topology": {"span_s": span, "services": nodes, "edges": edges},
                 "inputs": inputs,
                 "mode": orchestrator.policy.mode,
@@ -261,6 +270,8 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
                 raise HTTPException(404, "no such scenario")
             if name != "reset" and store.list_incidents(open_only=True):
                 raise HTTPException(409, "an incident is already open; wait for it to close")
+            if name != "reset" and settling(time.time()) > 0:
+                raise HTTPException(409, "the shop changed a moment ago; wait for it to settle")
             demo[name]["run"]()
             return {"ok": True}
 

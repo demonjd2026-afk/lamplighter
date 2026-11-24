@@ -297,7 +297,10 @@ async function refresh() {
     const [status, list] = await Promise.all([api("/v1/status"), api("/v1/incidents?limit=20")]);
     vitals(status);
     inputs(status);
-    lockLab(list.incidents.some((incident) => !incident.closed_at));
+    const settlingFor = (status.inputs || {}).settling_s || 0;
+    lockLab(list.incidents.some((incident) => !incident.closed_at) || settlingFor > 0);
+    if (labReady && settlingFor > 0) $("lab-note").textContent = "The shop changed a moment ago. Ready in " + settlingFor + " s, so the next fault is judged on its own.";
+    else if (labReady && $("lab-note").textContent.startsWith("The shop changed")) $("lab-note").textContent = "Ready.";
     renderList(list.incidents);
     const newest = list.incidents[0] ? await api("/v1/incidents/" + list.incidents[0].id) : null;
     let root = null;

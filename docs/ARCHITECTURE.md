@@ -118,6 +118,9 @@ which is a demo simplification you would generalise first.
   one dependency is unhealthy.
 - One fault at a time. Overlapping faults usually produce zero or several accepted hypotheses, which is
   ESCALATED by design.
+- A crash or hang shortly after a deploy or setting change to the same service is escalated rather than
+  restarted, because the change cannot be ruled out as the cause. The demo's fault buttons wait until the last
+  change has left that window (30 seconds in the demo timing profile) so each fault is a single-cause test.
 - A restart cannot be rehearsed, so it has no preflight; it is proven only afterwards.
 - Undoing a failed rollback re-deploys the release that was rolled back. That restores the state a human
   last chose, on the reasoning that a rollback which did not help was aimed at the wrong cause.

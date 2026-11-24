@@ -19,10 +19,10 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 1.99,
-  "impact_s": 8.74,
-  "failed_requests": 166,
-  "close_s": 18.87,
+  "detect_s": 2.05,
+  "impact_s": 9.09,
+  "failed_requests": 171,
+  "close_s": 19.26,
   "audit_ok": true
  },
  {
@@ -46,9 +46,9 @@
   ],
   "naive_ok": true,
   "detect_s": 2.05,
-  "impact_s": 8.89,
+  "impact_s": 8.9,
   "failed_requests": 167,
-  "close_s": 18.99,
+  "close_s": 19.04,
   "audit_ok": true
  },
  {
@@ -71,10 +71,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.64,
-  "impact_s": 10.12,
-  "failed_requests": 197,
-  "close_s": 20.32,
+  "detect_s": 2.7,
+  "impact_s": 10.21,
+  "failed_requests": 199,
+  "close_s": 20.37,
   "audit_ok": true
  },
  {
@@ -98,9 +98,9 @@
   ],
   "naive_ok": true,
   "detect_s": 2.08,
-  "impact_s": 8.69,
-  "failed_requests": 175,
-  "close_s": 18.87,
+  "impact_s": 8.74,
+  "failed_requests": 176,
+  "close_s": 18.88,
   "audit_ok": true
  },
  {
@@ -118,10 +118,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.04,
-  "impact_s": 12.5,
-  "failed_requests": 236,
-  "close_s": 8.27,
+  "detect_s": 2.05,
+  "impact_s": 12.24,
+  "failed_requests": 231,
+  "close_s": 8.25,
   "audit_ok": true
  },
  {
@@ -144,10 +144,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.24,
-  "impact_s": 54.35,
-  "failed_requests": 1050,
-  "close_s": 50.27,
+  "detect_s": 1.75,
+  "impact_s": 53.84,
+  "failed_requests": 1040,
+  "close_s": 49.79,
   "audit_ok": true
  },
  {
@@ -165,10 +165,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.24,
-  "impact_s": 4.8,
+  "detect_s": 1.76,
+  "impact_s": 4.79,
   "failed_requests": 78,
-  "close_s": 9.17,
+  "close_s": 8.69,
   "audit_ok": true
  },
  {
@@ -209,9 +209,9 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 1.98,
-  "impact_s": 8.95,
-  "failed_requests": 175,
+  "detect_s": 2.05,
+  "impact_s": 8.94,
+  "failed_requests": 176,
   "close_s": 19.1,
   "audit_ok": true
  },
@@ -236,9 +236,9 @@
   ],
   "naive_ok": true,
   "detect_s": 2.05,
-  "impact_s": 9.0,
-  "failed_requests": 176,
-  "close_s": 19.11,
+  "impact_s": 8.95,
+  "failed_requests": 175,
+  "close_s": 19.07,
   "audit_ok": true
  },
  {
@@ -261,10 +261,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.65,
-  "impact_s": 10.17,
-  "failed_requests": 201,
-  "close_s": 20.33,
+  "detect_s": 2.6,
+  "impact_s": 10.13,
+  "failed_requests": 200,
+  "close_s": 20.27,
   "audit_ok": true
  },
  {
@@ -287,9 +287,9 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 2.1,
-  "impact_s": 8.69,
-  "failed_requests": 175,
+  "detect_s": 2.08,
+  "impact_s": 8.74,
+  "failed_requests": 176,
   "close_s": 18.87,
   "audit_ok": true
  },
@@ -308,10 +308,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.03,
-  "impact_s": 12.25,
-  "failed_requests": 239,
-  "close_s": 8.23,
+  "detect_s": 2.08,
+  "impact_s": 12.5,
+  "failed_requests": 244,
+  "close_s": 8.29,
   "audit_ok": true
  },
  {
@@ -334,10 +334,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 1.74,
-  "impact_s": 53.85,
+  "detect_s": 1.76,
+  "impact_s": 53.84,
   "failed_requests": 1043,
-  "close_s": 49.7,
+  "close_s": 49.81,
   "audit_ok": true
  },
  {
@@ -355,10 +355,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 1.74,
-  "impact_s": 4.79,
+  "detect_s": 1.8,
+  "impact_s": 4.8,
   "failed_requests": 78,
-  "close_s": 8.65,
+  "close_s": 8.73,
   "audit_ok": true
  },
  {
@@ -399,10 +399,10 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 1.99,
-  "impact_s": 8.84,
-  "failed_requests": 165,
-  "close_s": 18.98,
+  "detect_s": 2.05,
+  "impact_s": 8.94,
+  "failed_requests": 167,
+  "close_s": 19.09,
   "audit_ok": true
  },
  {
@@ -425,10 +425,10 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 1.98,
+  "detect_s": 2.05,
   "impact_s": 8.9,
   "failed_requests": 165,
-  "close_s": 19.03,
+  "close_s": 19.04,
   "audit_ok": true
  },
  {
@@ -451,10 +451,10 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 2.63,
-  "impact_s": 10.18,
-  "failed_requests": 199,
-  "close_s": 20.33,
+  "detect_s": 2.66,
+  "impact_s": 10.12,
+  "failed_requests": 198,
+  "close_s": 20.31,
   "audit_ok": true
  },
  {
@@ -477,10 +477,10 @@
    "checkout"
   ],
   "naive_ok": true,
-  "detect_s": 2.08,
-  "impact_s": 8.69,
-  "failed_requests": 175,
-  "close_s": 18.86,
+  "detect_s": 1.83,
+  "impact_s": 8.51,
+  "failed_requests": 171,
+  "close_s": 18.66,
   "audit_ok": true
  },
  {
@@ -501,7 +501,7 @@
   "detect_s": 2.04,
   "impact_s": 12.25,
   "failed_requests": 226,
-  "close_s": 8.26,
+  "close_s": 8.25,
   "audit_ok": true
  },
  {
@@ -525,9 +525,9 @@
   ],
   "naive_ok": false,
   "detect_s": 1.79,
-  "impact_s": 53.85,
+  "impact_s": 53.84,
   "failed_requests": 1041,
-  "close_s": 49.79,
+  "close_s": 49.82,
   "audit_ok": true
  },
  {
@@ -545,8 +545,8 @@
    "checkout"
   ],
   "naive_ok": false,
-  "detect_s": 1.75,
-  "impact_s": 4.8,
+  "detect_s": 1.76,
+  "impact_s": 4.79,
   "failed_requests": 79,
   "close_s": 8.67,
   "audit_ok": true

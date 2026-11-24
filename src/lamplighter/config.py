@@ -43,7 +43,7 @@ class Timing:
     def demo() -> "Timing":
         """The same logic with windows scaled to seconds, for the local demo."""
         return Timing(short_window_s=10, long_window_s=30, burn_threshold=10, min_requests=30, bucket_s=1,
-                      lookback_s=120, baseline_s=45, change_lag_s=90, hold_s=6, recent_window_s=4,
+                      lookback_s=120, baseline_s=45, change_lag_s=30, hold_s=6, recent_window_s=4,
                       settle_s=2, verify_window_s=4, verify_checks=2, verify_timeout_s=40,
                       verify_max_bad=0.02, verify_min_requests=20, approval_ttl_s=120, cooldown_s=20)
 
