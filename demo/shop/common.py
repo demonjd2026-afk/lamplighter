@@ -5,6 +5,7 @@ import json
 import os
 import threading
 import time
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -63,6 +64,11 @@ class JsonFile:
                 except (json.JSONDecodeError, OSError):
                     pass  # keep the last good value
             return self._value
+
+
+# The shop talks only to itself on loopback. A system or environment proxy must never be used for
+# that: urllib would otherwise send 127.0.0.1 requests to the proxy and every local call would fail.
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
 def now() -> float:

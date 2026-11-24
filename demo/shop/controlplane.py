@@ -26,7 +26,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from demo.shop.common import JsonlLog, atomic_write_json, now
+from demo.shop.common import LOCAL, JsonlLog, atomic_write_json, now
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RELEASES_ROOT = Path(__file__).resolve().parent / "releases"
@@ -58,11 +58,11 @@ def free_port() -> int:
         return sock.getsockname()[1]
 
 
-def wait_healthy(url: str, timeout_s: float = 8.0) -> bool:
+def wait_healthy(url: str, timeout_s: float = 20.0) -> bool:
     deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(f"{url}/healthz", timeout=0.5) as resp:
+            with LOCAL.open(f"{url}/healthz", timeout=0.5) as resp:
                 if resp.status == 200:
                     return True
         except (urllib.error.URLError, OSError):
@@ -97,8 +97,24 @@ class Stack:
                     "--config-file", str(self.config_file("checkout")),
                     "--inventory-url", self.url("inventory"), "--payments-url", self.url("payments")]
         env = {**os.environ, "PYTHONPATH": str(PROJECT_ROOT), "PYTHONDONTWRITEBYTECODE": "1"}
-        self.procs[service] = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env,
-                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.stderr_file(service).parent.mkdir(parents=True, exist_ok=True)
+        with open(self.stderr_file(service), "ab") as errors:
+            self.procs[service] = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env,
+                                                   stdout=subprocess.DEVNULL, stderr=errors)
+
+    def stderr_file(self, service: str) -> Path:
+        return self.data_dir / "stderr" / f"{service}.log"
+
+    def why_unhealthy(self, service: str) -> str:
+        """A short explanation for a service that did not come up: exit status and the end of its stderr."""
+        proc = self.procs.get(service)
+        status = "not started" if proc is None else (
+            "still running but not answering /healthz" if proc.poll() is None else f"exited with status {proc.returncode}")
+        try:
+            tail = self.stderr_file(service).read_text(encoding="utf-8", errors="replace").strip().splitlines()[-6:]
+        except OSError:
+            tail = []
+        return f"{service} did not become healthy ({status})" + ("; stderr: " + " | ".join(tail) if tail else "")
 
     def stop(self, service: str, hard: bool = False) -> None:
         proc = self.procs.pop(service, None)
@@ -145,7 +161,7 @@ class ControlPlane:
                 self.live.spawn(service, self.state["releases"].get(service, "v1"))
             for service in SERVICES:
                 if not wait_healthy(self.live.url(service)):
-                    raise RuntimeError(f"{service} did not become healthy")
+                    raise RuntimeError(self.live.why_unhealthy(service))
             self._save()
 
     def stop(self) -> None:

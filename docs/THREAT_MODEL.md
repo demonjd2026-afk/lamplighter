@@ -35,7 +35,7 @@ stops it, the test that checks the control, and what is not covered.
 | 10 | Server-side request forgery (replay or actions pointed at an internal address) | Every outbound URL passes an allow-list of hosts; plain HTTP only on loopback; no credentials in URLs. Replay targets come from the control plane and are checked again. | `test_urls_outside_the_allow_list_are_refused`, `test_replay_refuses_targets_outside_the_allow_list` |
 | 11 | Header or request injection through captured traffic | Only GET/POST/PUT/PATCH/DELETE with a plain absolute path are replayed. | `test_only_ordinary_captured_requests_are_replayed` |
 | 12 | Path traversal (incident ids, release names, static files) | Strict patterns, resolved-path containment, a two-file static allow-list. | `test_incident_ids_are_validated`, `test_release_reader_cannot_leave_the_releases_root`, `test_security_headers_and_static_allow_list` |
-| 13 | Cross-site scripting in the dashboard or postmortem | The dashboard inserts server data with `textContent` only; CSP `default-src 'none'; script-src 'self'`; no inline script; markup in reports is escaped. | `test_security_headers_and_static_allow_list`, `test_report_neutralises_markup_from_telemetry` |
+| 13 | Cross-site scripting in the dashboard or postmortem | The dashboard inserts server data with `textContent` only; CSP `default-src 'none'; script-src 'self'; font-src 'self'`; no inline script and nothing loaded from another origin (three.js and the typeface are served from the app itself); markup in reports is escaped. | `test_security_headers_and_static_allow_list`, `test_report_neutralises_markup_from_telemetry` |
 | 14 | Malformed telemetry crashes or misleads the pipeline | Type validation on every record; bad lines are skipped and counted (`lamplighter_telemetry_skipped_lines`). | `test_malformed_records_are_skipped_and_counted` |
 | 15 | Tampering with the audit trail | SHA-256 hash chain; `lamplighter audit` verifies it. | `test_audit_chain_detects_tampering`, `test_audit_chain_detects_deletion` |
 | 16 | Replaying non-idempotent traffic damages production | Replays run only against sandbox stacks, never the live system. | by construction (`prove.py`) |
@@ -57,4 +57,4 @@ stops it, the test that checks the control, and what is not covered.
   matching error logs could steer a diagnosis toward a rollback. The sandbox control replay limits this
   (the failure must really reproduce), and the action set is limited to reversible operations.
 - **Single-tenant, single-token access control.** There are no roles or per-user identities.
-- **Dependencies.** Runtime dependencies are FastAPI and Uvicorn; versions are bounded, not pinned by hash.
+- **Dependencies.** Runtime dependencies are FastAPI and Uvicorn; versions are bounded, not pinned by hash. The dashboard bundle contains three.js 0.170, built once and committed; it is not rebuilt or audited automatically.

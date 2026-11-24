@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from .config import Settings
 from .detect import evaluate, is_bad, slo_services
+from .evidence import p95
 from .orchestrator import Orchestrator
 from .redact import redact
 from .store import OPEN_STATES, TERMINAL_STATES, Store
@@ -28,7 +29,7 @@ STATIC = Path(__file__).parent / "static"
 INCIDENT_ID = re.compile(r"^inc-\d{8}-\d{6}-[0-9a-f]{6}$")
 MAX_WEBHOOK_BYTES = 16 * 1024
 WEBHOOK_TOLERANCE_S = 300
-CSP = "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+CSP = "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
 
 
 class Decision(BaseModel):
@@ -51,6 +52,13 @@ def _summary(incident: dict) -> dict:
             "summary": accepted["summary"] if accepted else None,
             "reason": (data.get("outcome") or {}).get("reason"),
             "plan": data.get("plan"), "plan_hash": data.get("plan_hash")}
+
+
+def _slow(recent: list[dict], earlier: list[dict]) -> bool:
+    if len(recent) < 3 or len(earlier) < 10:
+        return False
+    now_p95, then_p95 = p95([r["latency_ms"] for r in recent]), p95([r["latency_ms"] for r in earlier])
+    return now_p95 >= max(3 * then_p95, then_p95 + 200.0)
 
 
 def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orchestrator: Orchestrator) -> FastAPI:
@@ -130,7 +138,40 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
             alert = evaluate(telemetry, service, slo, now, timing)
             out[service] = {"slo": slo, "firing": alert is not None, "bucket_s": timing.bucket_s, "series": series,
                             "burn_short": alert["burn_short"] if alert else None}
-        return {"now": now, "services": out, "mode": orchestrator.policy.mode,
+        # live picture of every service and call path, for the dashboard's street view
+        span = max(timing.recent_window_s * 2, 5 * timing.bucket_s)
+        catalog = telemetry.catalog().get("services", {})
+        edges, inbound = [], {}
+        for name, meta in catalog.items():
+            calls = telemetry.calls(name, now - span, now)
+            for dep in meta.get("deps", []):
+                if dep not in catalog:
+                    continue
+                to_dep = [c for c in calls if c.get("target") == dep]
+                failed = sum(1 for c in to_dep if c.get("error"))
+                edges.append({"from": name, "to": dep, "calls": len(to_dep), "failed": failed})
+                totals = inbound.setdefault(dep, [0, 0])
+                totals[0] += len(to_dep)
+                totals[1] += failed
+        nodes = {}
+        for name, meta in catalog.items():
+            requests = telemetry.requests(name, now - span, now)
+            slo = meta.get("slo")
+            bad = sum(1 for r in requests if (is_bad(r, slo) if slo else r["status"] >= 500))
+            attempts, failed = inbound.get(name, [0, 0])
+            if attempts >= 5 and failed / attempts >= 0.5 and len(requests) < 0.2 * attempts:
+                state = "dark"          # callers keep trying and failing; it serves almost nothing
+            elif requests and bad / len(requests) >= 0.05:
+                state = "failing"
+            elif _slow(requests, telemetry.requests(name, now - 8 * span, now - 2 * span)):
+                state = "failing"       # answering, but far slower than it was a moment ago
+            else:
+                state = "ok"
+            nodes[name] = {"deps": [d for d in meta.get("deps", []) if d in catalog], "requests": len(requests),
+                           "bad": bad, "per_s": round(len(requests) / span, 1), "state": state,
+                           "external": bool(meta.get("external")), "edge": bool(meta.get("edge"))}
+        return {"now": now, "services": out, "topology": {"span_s": span, "services": nodes, "edges": edges},
+                "mode": orchestrator.policy.mode,
                 "kill_switch": orchestrator.policy.kill_switch_on(), "model": bool(orchestrator.llm)}
 
     @app.get("/v1/incidents", dependencies=[Depends(can_read)])
@@ -192,9 +233,16 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
 
     @app.get("/static/{name}")
     def static(name: str) -> Response:
-        allowed = {"app.js": "text/javascript", "style.css": "text/css"}
+        allowed = {"app.bundle.js": "text/javascript", "style.css": "text/css", "icon-calm.svg": "image/svg+xml",
+                   "icon-alarm.svg": "image/svg+xml", "icon-work.svg": "image/svg+xml"}
         if name not in allowed:
             raise HTTPException(404, "not found")
         return FileResponse(STATIC / name, media_type=allowed[name])
+
+    @app.get("/static/fonts/{name}")
+    def font(name: str) -> Response:
+        if name not in ("chakra-petch-latin-600-normal.woff2", "chakra-petch-latin-700-normal.woff2"):
+            raise HTTPException(404, "not found")
+        return FileResponse(STATIC / "fonts" / name, media_type="font/woff2")
 
     return app

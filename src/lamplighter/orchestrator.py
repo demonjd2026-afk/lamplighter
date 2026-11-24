@@ -20,7 +20,7 @@ from typing import Callable
 
 from . import fixforward, prove, replay, report
 from .actions import ActionError, Actuator, TransientError, execute, precondition
-from .config import Settings
+from .config import Settings, open_url
 from .detect import evaluate, slo_services, still_failing
 from .evidence import Bundle, collect
 from .llm import LLMClient, LLMError, narrate
@@ -319,6 +319,6 @@ class Orchestrator:
         request = urllib.request.Request(self.settings.notify_url, data=body, method="POST",
                                          headers={"Content-Type": "application/json"})
         try:
-            urllib.request.urlopen(request, timeout=5).close()
+            open_url(request, 5).close()
         except Exception as exc:  # noqa: BLE001 - notification failure must not affect the incident
             log.warning("notification failed: %s", exc.__class__.__name__)

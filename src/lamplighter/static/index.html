@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,18 +7,46 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header>
-  <div class="brand"><span class="lamp"></span>Lamplighter<small>the on-call engineer that proves its work</small></div>
-  <div id="badges"></div>
-  <form id="auth"><input id="token" type="password" placeholder="API token (for decisions)" autocomplete="off"></form>
+<header class="bar">
+  <div class="brand"><span class="mark" aria-hidden="true"></span><span class="name">Lamplighter</span></div>
+  <div id="badges" class="badges"></div>
+  <button id="theme" class="pill toggle" type="button" aria-pressed="false">Light mode</button>
+  <form id="auth"><label class="sr" for="token">API token</label>
+    <input id="token" type="password" placeholder="API token, to approve plans" autocomplete="off"></form>
 </header>
-<main>
-  <aside>
-    <section><h2>Live service health</h2><div id="services"></div></section>
-    <section><h2>Incidents</h2><div id="incidents"></div></section>
-  </aside>
-  <article id="detail"><p class="muted">No incident selected. This page updates on its own.</p></article>
+<section id="stage" class="stage" data-mood="calm" aria-label="Live view of the services">
+  <div class="status">
+    <h1 id="headline">Lighting the street</h1>
+    <p id="subline"></p>
+    <aside class="vitals" aria-label="Customer traffic right now">
+      <div id="gauge" class="gauge" data-level="good"><span id="gauge-value">0%</span><small>failing now</small></div>
+      <dl>
+        <div><dt>Requests a second</dt><dd id="rate">0</dd></div>
+        <div><dt>Promised served</dt><dd id="promise">-</dd></div>
+        <div class="wide"><dt>Error budget</dt><dd id="alert" data-level="good">Within the promise</dd></div>
+      </dl>
+    </aside>
+  </div>
+  <div class="view">
+    <canvas id="scene" role="img" aria-label="Each service is a street lamp. Lit means healthy, red means failing, unlit means not answering."></canvas>
+    <svg id="leaders" class="leaders" aria-hidden="true"></svg>
+    <div id="tags" class="tags" aria-hidden="true"></div>
+  </div>
+  <div class="minute">
+    <div class="minute-head"><span>The last minute of customer requests</span>
+      <ul class="key" aria-label="What the lamps mean">
+        <li><span class="dot lit"></span>healthy</li>
+        <li><span class="dot ember"></span>failing</li>
+        <li><span class="dot out"></span>not answering</li>
+        <li><span class="dot proof"></span>Lamplighter</li>
+      </ul></div>
+    <div id="strip" class="strip"></div>
+  </div>
+</section>
+<main class="desk">
+  <nav class="rail" aria-label="Incidents"><h2>Incidents</h2><div id="incidents"></div></nav>
+  <article id="detail" class="case"><p class="quiet">Nothing has gone wrong yet. When the street dims, the case appears here.</p></article>
 </main>
-<script src="/static/app.js"></script>
+<script type="module" src="/static/app.bundle.js"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from demo.shop.common import JsonFile, JsonlLog, now
+from demo.shop.common import LOCAL, JsonFile, JsonlLog, now
 
 MAX_BODY = 64 * 1024
 PRICES = {f"SKU-{i}": 1500 + 725 * i for i in range(1, 9)}
@@ -67,7 +67,7 @@ class Deps:
         t0 = time.perf_counter()
         status, error, body = 0, None, None
         try:
-            with urllib.request.urlopen(req, timeout=max(timeout_ms, 1) / 1000.0) as resp:
+            with LOCAL.open(req, timeout=max(timeout_ms, 1) / 1000.0) as resp:
                 status = resp.status
                 body = json.loads(resp.read(MAX_BODY) or b"null")
         except urllib.error.HTTPError as exc:

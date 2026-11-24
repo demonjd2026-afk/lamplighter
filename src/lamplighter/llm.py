@@ -16,7 +16,7 @@ import urllib.error
 import urllib.request
 from typing import Protocol
 
-from .config import Settings
+from .config import Settings, open_url
 from .evidence import Bundle
 from .redact import redact
 
@@ -53,7 +53,7 @@ def _post(url: str, headers: dict, body: dict, timeout_s: float = 60.0, retries:
         request = urllib.request.Request(url, data=data, method="POST",
                                          headers={"Content-Type": "application/json", **headers})
         try:
-            with urllib.request.urlopen(request, timeout=timeout_s) as resp:
+            with open_url(request, timeout_s) as resp:
                 return json.loads(resp.read())
         except urllib.error.HTTPError as exc:
             last = f"HTTP {exc.code}"

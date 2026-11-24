@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from .config import Timing, validate_url
+from .config import Timing, open_url, validate_url
 from .evidence import Bundle
 from .telemetry import TelemetrySource
 
@@ -67,7 +67,7 @@ def _send(base_url: str, case: dict, timeout_s: float) -> tuple[int, Any]:
     request = urllib.request.Request(base_url + route, data=json.dumps(case["req"]).encode(),
                                      method=case["method"], headers={"Content-Type": "application/json"})
     try:
-        with urllib.request.urlopen(request, timeout=timeout_s) as resp:
+        with open_url(request, timeout_s) as resp:
             return resp.status, json.loads(resp.read() or b"null")
     except urllib.error.HTTPError as exc:
         try:

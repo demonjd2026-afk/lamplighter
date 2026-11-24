@@ -12,7 +12,7 @@ import urllib.error
 import urllib.request
 from typing import Any, Protocol
 
-from .config import validate_url
+from .config import open_url, validate_url
 
 
 class ActionError(Exception):
@@ -47,7 +47,7 @@ class ControlPlaneClient:
             request = urllib.request.Request(self._base + path, data=data, method=method, headers={
                 "Authorization": f"Bearer {self._token}", "Content-Type": "application/json"})
             try:
-                with urllib.request.urlopen(request, timeout=self._timeout) as resp:
+                with open_url(request, self._timeout) as resp:
                     payload = json.loads(resp.read())
                     if not isinstance(payload, dict):
                         raise ActionError("control plane returned a non-object")

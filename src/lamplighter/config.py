@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import urllib.request
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from urllib.parse import urlparse
@@ -63,6 +64,18 @@ def _secret(name: str, minimum: int = 24) -> str:
     if value and len(value) < minimum:
         raise ConfigError(f"{name} must be at least {minimum} characters")
     return value
+
+
+_DIRECT = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+def open_url(request: urllib.request.Request, timeout: float):  # type: ignore[no-untyped-def]
+    """Open a request. Loopback targets never go through a system or environment proxy (a proxy cannot
+    reach this machine's own localhost); anything else uses the normal proxy settings."""
+    host = urlparse(request.full_url).hostname
+    if host in LOOPBACK_HOSTS:
+        return _DIRECT.open(request, timeout=timeout)
+    return urllib.request.urlopen(request, timeout=timeout)
 
 
 def validate_url(url: str, allowed_hosts: frozenset[str], what: str) -> str:

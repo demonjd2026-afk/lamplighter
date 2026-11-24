@@ -89,6 +89,16 @@ To run it as a service against your own telemetry and control plane, see `.env.e
 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#adapting-it-to-a-real-system)); the demo shop is the only
 system it has been run against.
 
+## The dashboard
+
+A live 3D street: every service is a lamp. Amber means healthy, red means failing, unlit means not
+answering. Points of light on the wires are requests, and failed ones burn out before they arrive. The
+mint drone is Lamplighter: it flies to the lamp it is fixing and stays until the fix is proven. There is a
+light and a dark theme (the button in the top bar, or `?theme=light`).
+
+The dashboard source is in `ui/` and is bundled into `src/lamplighter/static/app.bundle.js`, which is
+committed, so running the project needs no Node.js. To rebuild after editing: `cd ui && npm install && npm run build`.
+
 ## How it stays safe
 
 - No policy file means propose-only. Unknown actions are denied. There is an hourly rate limit and a kill-switch file.
@@ -113,8 +123,9 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 - **Building:** Claude (Anthropic) was used as a coding assistant for design, implementation and tests.
 - **At run time:** no model is bundled or required. Optionally, any model reachable through the Anthropic
   Messages API or an OpenAI-compatible chat completions endpoint; the model id is supplied by the user.
-- **Libraries:** FastAPI and Uvicorn (API and dashboard); pytest and httpx (tests). Everything else,
-  including the demo shop, is the Python standard library.
+- **Libraries:** FastAPI and Uvicorn (API and dashboard); pytest and httpx (tests); three.js (MIT), bundled
+  into the dashboard with esbuild; the Chakra Petch typeface (SIL Open Font License, text in
+  `src/lamplighter/static/fonts/OFL.txt`). Everything else, including the demo shop, is the Python standard library.
 - **Design references:** OpenRCA, ITBench, a 2026 failure analysis of LLM root-cause agents, the program
   repair literature on test overfitting, and the Google SRE Workbook on SLO alerting. Links are in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#sources-for-the-design-position).
@@ -134,6 +145,7 @@ src/lamplighter/   the system (see docs/ARCHITECTURE.md for a module table)
 demo/shop/         the watched system: three services, a control plane, a traffic generator, three releases
 demo/run_demo.py   the demo runner
 eval/              fault scenarios with ground truth, the lab, the evaluation runner and its raw results
+ui/                dashboard source (three.js scene and HUD); builds the committed bundle
 tests/             unit, security and end-to-end tests
 docs/              architecture, threat model, evaluation
 ```

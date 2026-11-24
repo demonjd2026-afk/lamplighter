@@ -98,9 +98,13 @@ def test_security_headers_and_static_allow_list(tmp_path):
     page = client.get("/")
     assert page.status_code == 200 and "script-src 'self'" in page.headers["content-security-policy"]
     assert page.headers["x-frame-options"] == "DENY" and page.headers["x-content-type-options"] == "nosniff"
-    assert "<script src=" in page.text and "onclick" not in page.text            # no inline script
-    assert client.get("/static/app.js").status_code == 200
-    for name in ("../api.py", "index.html", "..%2Fapi.py", "app.js.map"):
+    assert 'src="/static/app.bundle.js"' in page.text and "onclick" not in page.text            # no inline script
+    assert client.get("/static/app.bundle.js").status_code == 200
+    assert client.get("/static/icon-alarm.svg").headers["content-type"].startswith("image/svg+xml")
+    assert client.get("/static/fonts/chakra-petch-latin-700-normal.woff2").status_code == 200
+    assert client.get("/static/fonts/OFL.txt").status_code == 404 and client.get("/static/fonts/..%2Fstyle.css").status_code == 404
+    assert "font-src 'self'" in page.headers["content-security-policy"]
+    for name in ("../api.py", "index.html", "..%2Fapi.py", "app.bundle.js.map"):
         assert client.get(f"/static/{name}").status_code == 404
     assert client.get("/docs").status_code == 404 and client.get("/openapi.json").status_code == 404
 

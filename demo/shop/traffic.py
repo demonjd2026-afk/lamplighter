@@ -17,7 +17,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from demo.shop.common import JsonlLog, now
+from demo.shop.common import LOCAL, JsonlLog, now
 
 SKUS = [f"SKU-{i}" for i in range(1, 9)]
 GATEWAY_TIMEOUT_S = 5.0
@@ -70,7 +70,7 @@ class TrafficGenerator:
         t0 = time.perf_counter()
         status, payload, error = 0, None, None
         try:
-            with urllib.request.urlopen(request, timeout=GATEWAY_TIMEOUT_S) as resp:
+            with LOCAL.open(request, timeout=GATEWAY_TIMEOUT_S) as resp:
                 status, payload = resp.status, json.loads(resp.read())
         except urllib.error.HTTPError as exc:
             status = exc.code
