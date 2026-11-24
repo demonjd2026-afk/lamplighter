@@ -44,6 +44,14 @@ system whose scenarios were written alongside the rules. They show the system do
 do. They are not a claim about unseen production systems; the production defaults use 5 minute and 1 hour
 windows and a 2 minute hold.
 
+The model path is measured separately, in [docs/MODEL_EVALUATION.md](docs/MODEL_EVALUATION.md). The filter
+that stands between the model and the postmortem was given 419 labelled sentences built from five recorded
+incidents: it dropped 350 of 350 fabrications of the kinds it is built for (changed numbers, invented or
+missing citations, numbers borrowed from other evidence, malformed items) and kept 69 of 69 faithful ones.
+It does not catch a false claim that has no number and cites a real evidence id (0 of 20), which is why
+model text never feeds a decision. With a key set, the same command scores a live model's narratives with
+DeepEval's faithfulness metric, before and after the filter.
+
 The scenario the naive responder always gets wrong is the instructive one: a dependency hangs eight seconds
 after an unrelated deploy. Lamplighter rejects the deploy as a cause (the failures are not raised by that
 service's code) and restarts the dependency that is unhealthy by its own telemetry.
@@ -53,7 +61,7 @@ service's code) and restarts the dependency that is unhealthy by its own telemet
 Requires Python 3.11 or newer. No account, API key or container is needed.
 
 ```bash
-git clone <your repository URL>
+git clone https://github.com/demonjd2026-afk/lamplighter.git
 cd lamplighter
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
@@ -74,9 +82,10 @@ says what a correct response is. Watch the street react, then read the incident 
 their routes exist only in the demo; `lamplighter run` does not have them.
 
 ```bash
-pytest                 # 96 fast tests
+pytest                 # 102 fast tests (103 with the evals extra installed)
 pytest --e2e           # plus 3 end-to-end tests against real processes (about 3 minutes)
 python -m eval.run_eval --runs 3   # the evaluation above (about 25 minutes)
+python -m eval.model_eval          # the guard benchmark: offline, no key, a few seconds
 ```
 
 To switch the model on (optional):
@@ -86,6 +95,9 @@ export LAMPLIGHTER_LLM_PROVIDER=anthropic        # or: openai (any OpenAI-compat
 export LAMPLIGHTER_LLM_MODEL=<model id from your provider>
 export LAMPLIGHTER_LLM_API_KEY=<your key>
 python -m demo.run_demo --scenario bad_release --patch
+
+pip install -e ".[evals]"                                 # DeepEval, only needed for --judge
+python -m eval.model_eval --runs 3 --judge --patch-runs 3   # score the model; rewrites docs/MODEL_EVALUATION.md
 ```
 
 To run it as a service against your own telemetry and control plane, see `.env.example` and
@@ -127,9 +139,12 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 - **Building:** Claude (Anthropic) was used as a coding assistant for design, implementation and tests.
 - **At run time:** no model is bundled or required. Optionally, any model reachable through the Anthropic
   Messages API or an OpenAI-compatible chat completions endpoint; the model id is supplied by the user.
-- **Libraries:** FastAPI and Uvicorn (API and dashboard); pytest and httpx (tests); three.js (MIT), bundled
+  The model path was exercised with `claude-haiku-5-5`.
+- **Libraries:** FastAPI and Uvicorn (API and dashboard); pytest and httpx (tests); DeepEval (optional,
+  the faithfulness judge in the model evaluation); three.js (MIT), bundled
   into the dashboard with esbuild; the Oxanium, Manrope and JetBrains Mono typefaces (SIL Open Font License, texts in
   `src/lamplighter/static/fonts/LICENSES.txt`). Everything else, including the demo shop, is the Python standard library.
+- **Data:** all synthetic. The demo shop generates its own traffic; no real personal data is used anywhere.
 - **Design references:** OpenRCA, ITBench, a 2026 failure analysis of LLM root-cause agents, the program
   repair literature on test overfitting, and the Google SRE Workbook on SLO alerting. Links are in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#sources-for-the-design-position).
@@ -148,10 +163,10 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 src/lamplighter/   the system (see docs/ARCHITECTURE.md for a module table)
 demo/shop/         the watched system: three services, a control plane, a traffic generator, three releases
 demo/run_demo.py   the demo runner
-eval/              fault scenarios with ground truth, the lab, the evaluation runner and its raw results
+eval/              fault scenarios with ground truth, the lab, both evaluation runners, fixtures and raw results
 ui/                dashboard source (three.js scene and HUD); builds the committed bundle
 tests/             unit, security and end-to-end tests
-docs/              architecture, threat model, evaluation
+docs/              architecture, threat model, evaluation, model evaluation
 ```
 
 MIT licence.

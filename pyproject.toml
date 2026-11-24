@@ -13,6 +13,7 @@ dependencies = ["fastapi>=0.110,<1", "uvicorn>=0.29,<1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx>=0.27"]
+evals = ["deepeval>=4.3,<5"]   # only for `python -m eval.model_eval --judge`
 
 [project.scripts]
 lamplighter = "lamplighter.cli:main"

@@ -1,0 +1,47 @@
+{
+ "date": "2026-11-24",
+ "fixtures": 5,
+ "guard": {
+  "faithful": {
+   "cases": 69,
+   "correct": 69,
+   "should_keep": true
+  },
+  "citation does not exist": {
+   "cases": 69,
+   "correct": 69,
+   "should_keep": false
+  },
+  "one real and one invented citation": {
+   "cases": 69,
+   "correct": 69,
+   "should_keep": false
+  },
+  "no citation": {
+   "cases": 69,
+   "correct": 69,
+   "should_keep": false
+  },
+  "number changed": {
+   "cases": 59,
+   "correct": 59,
+   "should_keep": false
+  },
+  "number borrowed from other evidence": {
+   "cases": 59,
+   "correct": 59,
+   "should_keep": false
+  },
+  "malformed item": {
+   "cases": 25,
+   "correct": 25,
+   "should_keep": false
+  },
+  "false claim with no number (known limit)": {
+   "cases": 20,
+   "correct": 0,
+   "should_keep": false
+  }
+ },
+ "model": null
+}

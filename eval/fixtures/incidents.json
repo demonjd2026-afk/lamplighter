@@ -1,0 +1,2728 @@
+[
+ {
+  "scenario": "bad_release",
+  "state": "RESOLVED",
+  "bundle": {
+   "facts": {
+    "attribution": {
+     "checkout": {
+      "evidence": "E10",
+      "failures": 38,
+      "shares": {
+       "local": 1.0
+      }
+     },
+     "gateway": {
+      "evidence": "E6",
+      "failures": 40,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "inventory": {
+      "failures": 0,
+      "shares": {}
+     },
+     "payments": {
+      "failures": 0,
+      "shares": {}
+     }
+    },
+    "changes": [
+     {
+      "actor": "alice",
+      "evidence": "E15",
+      "from": "v1",
+      "id": "chg-0001",
+      "key": null,
+      "kind": "deploy",
+      "lag_s": 0.042,
+      "service": "checkout",
+      "to": "v2",
+      "ts": 1795530764.7612329
+     }
+    ],
+    "edges": {
+     "checkout->inventory": {
+      "calls_base": 534,
+      "calls_inc": 74,
+      "evidence": "E3",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "checkout->payments": {
+      "calls_base": 271,
+      "calls_inc": 0,
+      "evidence": "E4",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "gateway->checkout": {
+      "calls_base": 281,
+      "calls_inc": 42,
+      "evidence": "E2",
+      "fail_base": 0.0,
+      "fail_inc": 0.9524,
+      "kinds": {
+       "http_5xx": 38,
+       "unreachable": 2
+      }
+     }
+    },
+    "health": {
+     "checkout": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9268,
+      "evidence": "E9",
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 4.7,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 41
+     },
+     "gateway": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9524,
+      "evidence": "E5",
+      "p95_base_ms": 37.1,
+      "p95_inc_ms": 6.1,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 42
+     },
+     "inventory": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E13",
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 535,
+      "requests_inc": 74
+     },
+     "payments": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E14",
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 272,
+      "requests_inc": 0
+     }
+    },
+    "release_split": {
+     "checkout": {
+      "evidence": "E12",
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 282
+       },
+       "v2": {
+        "bad": 38,
+        "total": 41
+       }
+      }
+     }
+    },
+    "root": {
+     "evidence": [
+      "E5",
+      "E6",
+      "E2",
+      "E9",
+      "E10"
+     ],
+     "mode": "local",
+     "path": [
+      "gateway",
+      "checkout"
+     ],
+     "service": "checkout"
+    },
+    "signatures": {
+     "checkout": [
+      {
+       "count_base": 0,
+       "count_inc": 38,
+       "evidence": "E11",
+       "first_seen": 1795530764.9601357,
+       "frame": {
+        "file": "logic.py",
+        "func": "_discount_percent",
+        "in_release": true,
+        "line": 34
+       },
+       "novel": true,
+       "sample_traces": [
+        "548d9ba987644a37b6179fd3b39a0057",
+        "5618b6f84bc5454cac6025d7a1c8a53c",
+        "19b6cd06273f427a958a54f236d0963f"
+       ],
+       "signature": "KeyError: 'coupon'",
+       "type": "KeyError",
+       "upstream": null
+      }
+     ],
+     "gateway": [
+      {
+       "count_base": 0,
+       "count_inc": 38,
+       "evidence": "E7",
+       "first_seen": 1795530764.9606056,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "548d9ba987644a37b6179fd3b39a0057",
+        "5618b6f84bc5454cac6025d7a1c8a53c",
+        "19b6cd06273f427a958a54f236d0963f"
+       ],
+       "signature": "UpstreamError: checkout returned <n>",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      },
+      {
+       "count_base": 0,
+       "count_inc": 2,
+       "evidence": "E8",
+       "first_seen": 1795530764.8028204,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "3f1470b0a07d4d25a4d369b1a80bdda6",
+        "c143ff9efce9448ead3904ca7d382914"
+       ],
+       "signature": "UpstreamError: checkout unreachable",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      }
+     ],
+     "inventory": [],
+     "payments": []
+    },
+    "slo": "E1"
+   },
+   "items": [
+    {
+     "data": {
+      "bad": 40,
+      "onset": 1795530764.8028204,
+      "requests": 42,
+      "slo": {
+       "latency_ms": 2000,
+       "target": 0.99
+      }
+     },
+     "id": "E1",
+     "kind": "slo_burn",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530764.803",
+     "summary": "gateway: 40 of 42 requests failed the SLO since onset (95.2%)"
+    },
+    {
+     "data": {
+      "calls_base": 281,
+      "calls_inc": 42,
+      "fail_base": 0.0,
+      "fail_inc": 0.9524,
+      "kinds": {
+       "http_5xx": 38,
+       "unreachable": 2
+      }
+     },
+     "id": "E2",
+     "kind": "edge_health",
+     "service": "gateway",
+     "source": "calls service=gateway target=checkout ts>=1795530764.803",
+     "summary": "gateway -> checkout: 95.2% of 42 calls failed since onset (baseline 0.0%); kinds {'unreachable': 2, 'http_5xx': 38}"
+    },
+    {
+     "data": {
+      "calls_base": 534,
+      "calls_inc": 74,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E3",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=inventory ts>=1795530764.803",
+     "summary": "checkout -> inventory: 0.0% of 74 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "calls_base": 271,
+      "calls_inc": 0,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E4",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=payments ts>=1795530764.803",
+     "summary": "checkout -> payments: 0.0% of 0 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9524,
+      "p95_base_ms": 37.1,
+      "p95_inc_ms": 6.1,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 42
+     },
+     "id": "E5",
+     "kind": "service_health",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530764.803",
+     "summary": "gateway own telemetry: anomalous (errors); errors 95.2% (baseline 0.0%), p95 6ms (baseline 37ms), 42 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 40,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "id": "E6",
+     "kind": "failure_attribution",
+     "service": "gateway",
+     "source": "requests service=gateway status>=500 ts>=1795530764.803",
+     "summary": "gateway: 40 failed requests since onset, by origin {'checkout': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 38,
+      "first_seen": 1795530764.9606056,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "548d9ba987644a37b6179fd3b39a0057",
+       "5618b6f84bc5454cac6025d7a1c8a53c",
+       "19b6cd06273f427a958a54f236d0963f"
+      ],
+      "signature": "UpstreamError: checkout returned <n>",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E7",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout returned <n>'",
+     "summary": "gateway: \"UpstreamError: checkout returned <n>\" x38 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 2,
+      "first_seen": 1795530764.8028204,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "3f1470b0a07d4d25a4d369b1a80bdda6",
+       "c143ff9efce9448ead3904ca7d382914"
+      ],
+      "signature": "UpstreamError: checkout unreachable",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E8",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout unreachable'",
+     "summary": "gateway: \"UpstreamError: checkout unreachable\" x2 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9268,
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 4.7,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 41
+     },
+     "id": "E9",
+     "kind": "service_health",
+     "service": "checkout",
+     "source": "requests service=checkout ts>=1795530764.803",
+     "summary": "checkout own telemetry: anomalous (errors); errors 92.7% (baseline 0.0%), p95 5ms (baseline 36ms), 41 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 38,
+      "shares": {
+       "local": 1.0
+      }
+     },
+     "id": "E10",
+     "kind": "failure_attribution",
+     "service": "checkout",
+     "source": "requests service=checkout status>=500 ts>=1795530764.803",
+     "summary": "checkout: 38 failed requests since onset, by origin {'local': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 38,
+      "first_seen": 1795530764.9601357,
+      "frame": {
+       "file": "logic.py",
+       "func": "_discount_percent",
+       "in_release": true,
+       "line": 34
+      },
+      "novel": true,
+      "sample_traces": [
+       "548d9ba987644a37b6179fd3b39a0057",
+       "5618b6f84bc5454cac6025d7a1c8a53c",
+       "19b6cd06273f427a958a54f236d0963f"
+      ],
+      "signature": "KeyError: 'coupon'",
+      "type": "KeyError",
+      "upstream": null
+     },
+     "id": "E11",
+     "kind": "error_signature",
+     "service": "checkout",
+     "source": "requests service=checkout error.signature=\"KeyError: 'coupon'\"",
+     "summary": "checkout: \"KeyError: 'coupon'\" at logic.py:34 x38 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 282
+       },
+       "v2": {
+        "bad": 38,
+        "total": 41
+       }
+      }
+     },
+     "id": "E12",
+     "kind": "release_split",
+     "service": "checkout",
+     "source": "requests service=checkout group_by=release ts>=1795530719.803",
+     "summary": "checkout server errors by release: v1 0/282, v2 38/41"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 535,
+      "requests_inc": 74
+     },
+     "id": "E13",
+     "kind": "service_health",
+     "service": "inventory",
+     "source": "requests service=inventory ts>=1795530764.803",
+     "summary": "inventory own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 0ms), 74 requests since onset"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 272,
+      "requests_inc": 0
+     },
+     "id": "E14",
+     "kind": "service_health",
+     "service": "payments",
+     "source": "requests service=payments ts>=1795530764.803",
+     "summary": "payments own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 31ms), 0 requests since onset"
+    },
+    {
+     "data": {
+      "actor": "alice",
+      "from": "v1",
+      "id": "chg-0001",
+      "key": null,
+      "kind": "deploy",
+      "lag_s": 0.042,
+      "service": "checkout",
+      "to": "v2",
+      "ts": 1795530764.7612329
+     },
+     "id": "E15",
+     "kind": "change",
+     "service": "checkout",
+     "source": "changes id=chg-0001",
+     "summary": "checkout: deploy v1 -> v2 by alice, 0.0s before onset"
+    }
+   ],
+   "now": 1795530766.858685,
+   "onset": 1795530764.8028204,
+   "service": "gateway"
+  },
+  "diagnosis": {
+   "accepted": "H1",
+   "hypotheses": [
+    {
+     "accepted": true,
+     "cause_class": "bad_release",
+     "change_id": "chg-0001",
+     "checks": [
+      {
+       "detail": "the change landed 0.0s before the first failure",
+       "evidence": [
+        "E15"
+       ],
+       "name": "change precedes onset",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "failure path gateway -> checkout ends at checkout (local)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E9",
+        "E10"
+       ],
+       "name": "failures originate in this service",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "dominant error \"KeyError: 'coupon'\" at logic.py:34 is new since the change",
+       "evidence": [
+        "E11"
+       ],
+       "name": "new error raised by this service's code",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "no later deploy of this service",
+       "evidence": [],
+       "name": "this release is still the running one",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "38 of 38 server errors came from v2; v1 had 0/282",
+       "evidence": [
+        "E12"
+       ],
+       "name": "errors are confined to the new release",
+       "passed": true,
+       "required": false
+      }
+     ],
+     "component": "checkout",
+     "id": "H1",
+     "plan": {
+      "from": "v2",
+      "inverse": {
+       "kind": "deploy",
+       "release": "v2",
+       "service": "checkout"
+      },
+      "kind": "rollback_release",
+      "service": "checkout",
+      "to": "v1"
+     },
+     "score": 1.0,
+     "summary": "release v2 of checkout introduced a defect"
+    },
+    {
+     "accepted": false,
+     "cause_class": "unexplained_errors",
+     "change_id": null,
+     "checks": [
+      {
+       "detail": "failure path gateway -> checkout ends at checkout (local)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E9",
+        "E10"
+       ],
+       "name": "failure path ends at this service",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "checkout: errors; callers saw {'unreachable': 2, 'http_5xx': 38}",
+       "evidence": [
+        "E9"
+       ],
+       "name": "unhealthy by its own telemetry or unreachable",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "recent change(s): chg-0001",
+       "evidence": [
+        "E15"
+       ],
+       "name": "no recent change to this service",
+       "passed": false,
+       "required": true
+      }
+     ],
+     "component": "checkout",
+     "id": "H2",
+     "plan": null,
+     "score": 0.67,
+     "summary": "checkout is raising errors with no change to explain them"
+    }
+   ],
+   "reason": "H1 is the only hypothesis whose required checks all pass",
+   "root": {
+    "evidence": [
+     "E5",
+     "E6",
+     "E2",
+     "E9",
+     "E10"
+    ],
+    "mode": "local",
+    "path": [
+     "gateway",
+     "checkout"
+    ],
+    "service": "checkout"
+   },
+   "verdict": "accepted"
+  },
+  "outcome": {
+   "reason": "service restored and proven on live traffic",
+   "state": "RESOLVED",
+   "time_to_close_s": 19.0,
+   "time_to_detect_s": 2.05
+  }
+ },
+ {
+  "scenario": "bad_config",
+  "state": "RESOLVED",
+  "bundle": {
+   "facts": {
+    "attribution": {
+     "checkout": {
+      "evidence": "E9",
+      "failures": 39,
+      "shares": {
+       "payments": 1.0
+      }
+     },
+     "gateway": {
+      "evidence": "E6",
+      "failures": 40,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "inventory": {
+      "failures": 0,
+      "shares": {}
+     },
+     "payments": {
+      "failures": 0,
+      "shares": {}
+     }
+    },
+    "changes": [
+     {
+      "actor": "bob",
+      "evidence": "E14",
+      "from": 800,
+      "id": "chg-0001",
+      "key": "payments.timeout_ms",
+      "kind": "config",
+      "lag_s": 0.041,
+      "service": "checkout",
+      "to": 5,
+      "ts": 1795530799.617487
+     }
+    ],
+    "edges": {
+     "checkout->inventory": {
+      "calls_base": 536,
+      "calls_inc": 76,
+      "evidence": "E3",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "checkout->payments": {
+      "calls_base": 271,
+      "calls_inc": 39,
+      "evidence": "E4",
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "timeout": 39
+      }
+     },
+     "gateway->checkout": {
+      "calls_base": 281,
+      "calls_inc": 42,
+      "evidence": "E2",
+      "fail_base": 0.0,
+      "fail_inc": 0.9524,
+      "kinds": {
+       "http_5xx": 40
+      }
+     }
+    },
+    "health": {
+     "checkout": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9512,
+      "evidence": "E8",
+      "p95_base_ms": 36.0,
+      "p95_inc_ms": 9.1,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 41
+     },
+     "gateway": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9524,
+      "evidence": "E5",
+      "p95_base_ms": 37.3,
+      "p95_inc_ms": 10.5,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 42
+     },
+     "inventory": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E12",
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 537,
+      "requests_inc": 76
+     },
+     "payments": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E13",
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 30.6,
+      "reasons": [],
+      "requests_base": 272,
+      "requests_inc": 39
+     }
+    },
+    "release_split": {
+     "checkout": {
+      "evidence": "E11",
+      "releases": {
+       "v1": {
+        "bad": 39,
+        "total": 323
+       }
+      }
+     }
+    },
+    "root": {
+     "evidence": [
+      "E5",
+      "E6",
+      "E2",
+      "E8",
+      "E9",
+      "E4",
+      "E13"
+     ],
+     "mode": "caller_side",
+     "path": [
+      "gateway",
+      "checkout"
+     ],
+     "service": "checkout",
+     "target": "payments"
+    },
+    "signatures": {
+     "checkout": [
+      {
+       "count_base": 0,
+       "count_inc": 39,
+       "evidence": "E10",
+       "first_seen": 1795530799.7093532,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "2440e13c383c4289b076660e2886ddbc",
+        "10f7b6e432f9466b86e1cde8c5df99ff",
+        "7c7c1a35e7154364b7d3471f1c3fe6c9"
+       ],
+       "signature": "UpstreamError: payments timeout: after <n>ms",
+       "type": "UpstreamError",
+       "upstream": "payments"
+      }
+     ],
+     "gateway": [
+      {
+       "count_base": 0,
+       "count_inc": 40,
+       "evidence": "E7",
+       "first_seen": 1795530799.6589062,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "bfc9dd7a3adc41db9a60b2bde7e59d94",
+        "2440e13c383c4289b076660e2886ddbc",
+        "10f7b6e432f9466b86e1cde8c5df99ff"
+       ],
+       "signature": "UpstreamError: checkout returned <n>",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      }
+     ],
+     "inventory": [],
+     "payments": []
+    },
+    "slo": "E1"
+   },
+   "items": [
+    {
+     "data": {
+      "bad": 40,
+      "onset": 1795530799.6589062,
+      "requests": 42,
+      "slo": {
+       "latency_ms": 2000,
+       "target": 0.99
+      }
+     },
+     "id": "E1",
+     "kind": "slo_burn",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530799.659",
+     "summary": "gateway: 40 of 42 requests failed the SLO since onset (95.2%)"
+    },
+    {
+     "data": {
+      "calls_base": 281,
+      "calls_inc": 42,
+      "fail_base": 0.0,
+      "fail_inc": 0.9524,
+      "kinds": {
+       "http_5xx": 40
+      }
+     },
+     "id": "E2",
+     "kind": "edge_health",
+     "service": "gateway",
+     "source": "calls service=gateway target=checkout ts>=1795530799.659",
+     "summary": "gateway -> checkout: 95.2% of 42 calls failed since onset (baseline 0.0%); kinds {'http_5xx': 40}"
+    },
+    {
+     "data": {
+      "calls_base": 536,
+      "calls_inc": 76,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E3",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=inventory ts>=1795530799.659",
+     "summary": "checkout -> inventory: 0.0% of 76 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "calls_base": 271,
+      "calls_inc": 39,
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "timeout": 39
+      }
+     },
+     "id": "E4",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=payments ts>=1795530799.659",
+     "summary": "checkout -> payments: 100.0% of 39 calls failed since onset (baseline 0.0%); kinds {'timeout': 39}"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9524,
+      "p95_base_ms": 37.3,
+      "p95_inc_ms": 10.5,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 42
+     },
+     "id": "E5",
+     "kind": "service_health",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530799.659",
+     "summary": "gateway own telemetry: anomalous (errors); errors 95.2% (baseline 0.0%), p95 10ms (baseline 37ms), 42 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 40,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "id": "E6",
+     "kind": "failure_attribution",
+     "service": "gateway",
+     "source": "requests service=gateway status>=500 ts>=1795530799.659",
+     "summary": "gateway: 40 failed requests since onset, by origin {'checkout': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 40,
+      "first_seen": 1795530799.6589062,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "bfc9dd7a3adc41db9a60b2bde7e59d94",
+       "2440e13c383c4289b076660e2886ddbc",
+       "10f7b6e432f9466b86e1cde8c5df99ff"
+      ],
+      "signature": "UpstreamError: checkout returned <n>",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E7",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout returned <n>'",
+     "summary": "gateway: \"UpstreamError: checkout returned <n>\" x40 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9512,
+      "p95_base_ms": 36.0,
+      "p95_inc_ms": 9.1,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 41
+     },
+     "id": "E8",
+     "kind": "service_health",
+     "service": "checkout",
+     "source": "requests service=checkout ts>=1795530799.659",
+     "summary": "checkout own telemetry: anomalous (errors); errors 95.1% (baseline 0.0%), p95 9ms (baseline 36ms), 41 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 39,
+      "shares": {
+       "payments": 1.0
+      }
+     },
+     "id": "E9",
+     "kind": "failure_attribution",
+     "service": "checkout",
+     "source": "requests service=checkout status>=500 ts>=1795530799.659",
+     "summary": "checkout: 39 failed requests since onset, by origin {'payments': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 39,
+      "first_seen": 1795530799.7093532,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "2440e13c383c4289b076660e2886ddbc",
+       "10f7b6e432f9466b86e1cde8c5df99ff",
+       "7c7c1a35e7154364b7d3471f1c3fe6c9"
+      ],
+      "signature": "UpstreamError: payments timeout: after <n>ms",
+      "type": "UpstreamError",
+      "upstream": "payments"
+     },
+     "id": "E10",
+     "kind": "error_signature",
+     "service": "checkout",
+     "source": "requests service=checkout error.signature='UpstreamError: payments timeout: after <n>ms'",
+     "summary": "checkout: \"UpstreamError: payments timeout: after <n>ms\" x39 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "releases": {
+       "v1": {
+        "bad": 39,
+        "total": 323
+       }
+      }
+     },
+     "id": "E11",
+     "kind": "release_split",
+     "service": "checkout",
+     "source": "requests service=checkout group_by=release ts>=1795530754.659",
+     "summary": "checkout server errors by release: v1 39/323"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 537,
+      "requests_inc": 76
+     },
+     "id": "E12",
+     "kind": "service_health",
+     "service": "inventory",
+     "source": "requests service=inventory ts>=1795530799.659",
+     "summary": "inventory own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 0ms), 76 requests since onset"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 30.6,
+      "reasons": [],
+      "requests_base": 272,
+      "requests_inc": 39
+     },
+     "id": "E13",
+     "kind": "service_health",
+     "service": "payments",
+     "source": "requests service=payments ts>=1795530799.659",
+     "summary": "payments own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 31ms (baseline 31ms), 39 requests since onset"
+    },
+    {
+     "data": {
+      "actor": "bob",
+      "from": 800,
+      "id": "chg-0001",
+      "key": "payments.timeout_ms",
+      "kind": "config",
+      "lag_s": 0.041,
+      "service": "checkout",
+      "to": 5,
+      "ts": 1795530799.617487
+     },
+     "id": "E14",
+     "kind": "change",
+     "service": "checkout",
+     "source": "changes id=chg-0001",
+     "summary": "checkout: config payments.timeout_ms: 800 -> 5 by bob, 0.0s before onset"
+    }
+   ],
+   "now": 1795530801.7272115,
+   "onset": 1795530799.6589062,
+   "service": "gateway"
+  },
+  "diagnosis": {
+   "accepted": "H1",
+   "hypotheses": [
+    {
+     "accepted": true,
+     "cause_class": "bad_config",
+     "change_id": "chg-0001",
+     "checks": [
+      {
+       "detail": "the change landed 0.0s before the first failure",
+       "evidence": [
+        "E14"
+       ],
+       "name": "change precedes onset",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "failure path gateway -> checkout ends at checkout (caller_side, calls to payments); the setting governs calls to payments",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E8",
+        "E9",
+        "E4",
+        "E13"
+       ],
+       "name": "failures are on the call this setting governs",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "no later change of this key",
+       "evidence": [],
+       "name": "this value is still in effect",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "payments reports 0.0% errors and p95 31ms on its own telemetry",
+       "evidence": [
+        "E13"
+       ],
+       "name": "the dependency is healthy from its own side",
+       "passed": true,
+       "required": false
+      },
+      {
+       "detail": "timeout 5ms versus the dependency's normal p95 of 31ms",
+       "evidence": [
+        "E13",
+        "E14"
+       ],
+       "name": "the new value explains the failures",
+       "passed": true,
+       "required": false
+      }
+     ],
+     "component": "checkout",
+     "id": "H1",
+     "plan": {
+      "from": 5,
+      "inverse": {
+       "key": "payments.timeout_ms",
+       "kind": "set_config",
+       "service": "checkout",
+       "value": 5
+      },
+      "key": "payments.timeout_ms",
+      "kind": "revert_config",
+      "service": "checkout",
+      "to": 800
+     },
+     "score": 1.0,
+     "summary": "config payments.timeout_ms of checkout was changed from 800 to 5"
+    }
+   ],
+   "reason": "H1 is the only hypothesis whose required checks all pass",
+   "root": {
+    "evidence": [
+     "E5",
+     "E6",
+     "E2",
+     "E8",
+     "E9",
+     "E4",
+     "E13"
+    ],
+    "mode": "caller_side",
+    "path": [
+     "gateway",
+     "checkout"
+    ],
+    "service": "checkout",
+    "target": "payments"
+   },
+   "verdict": "accepted"
+  },
+  "outcome": {
+   "reason": "service restored and proven on live traffic",
+   "state": "RESOLVED",
+   "time_to_close_s": 19.07,
+   "time_to_detect_s": 2.06
+  }
+ },
+ {
+  "scenario": "dependency_stuck",
+  "state": "RESOLVED",
+  "bundle": {
+   "facts": {
+    "attribution": {
+     "checkout": {
+      "evidence": "E9",
+      "failures": 51,
+      "shares": {
+       "inventory": 1.0
+      }
+     },
+     "gateway": {
+      "evidence": "E6",
+      "failures": 52,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "inventory": {
+      "failures": 0,
+      "shares": {}
+     },
+     "payments": {
+      "failures": 0,
+      "shares": {}
+     }
+    },
+    "changes": [
+     {
+      "actor": "carol",
+      "evidence": "E14",
+      "from": "v1",
+      "id": "chg-0001",
+      "key": null,
+      "kind": "deploy",
+      "lag_s": 8.989,
+      "service": "checkout",
+      "to": "v1_1",
+      "ts": 1795530834.5609162
+     }
+    ],
+    "edges": {
+     "checkout->inventory": {
+      "calls_base": 884,
+      "calls_inc": 51,
+      "evidence": "E3",
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "timeout": 51
+      }
+     },
+     "checkout->payments": {
+      "calls_base": 440,
+      "calls_inc": 0,
+      "evidence": "E4",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "gateway->checkout": {
+      "calls_base": 460,
+      "calls_inc": 53,
+      "evidence": "E2",
+      "fail_base": 0.0043,
+      "fail_inc": 0.9811,
+      "kinds": {
+       "http_5xx": 52
+      }
+     }
+    },
+    "health": {
+     "checkout": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9808,
+      "evidence": "E8",
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 802.9,
+      "reasons": [
+       "errors",
+       "latency"
+      ],
+      "requests_base": 460,
+      "requests_inc": 52
+     },
+     "gateway": {
+      "anomalous": true,
+      "err_base": 0.0043,
+      "err_inc": 0.9811,
+      "evidence": "E5",
+      "p95_base_ms": 37.1,
+      "p95_inc_ms": 804.3,
+      "reasons": [
+       "errors",
+       "latency"
+      ],
+      "requests_base": 460,
+      "requests_inc": 53
+     },
+     "inventory": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E12",
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 3000.9,
+      "reasons": [
+       "latency",
+       "silent"
+      ],
+      "requests_base": 885,
+      "requests_inc": 10
+     },
+     "payments": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E13",
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 441,
+      "requests_inc": 0
+     }
+    },
+    "release_split": {
+     "checkout": {
+      "evidence": "E11",
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 302
+       },
+       "v1_1": {
+        "bad": 51,
+        "total": 210
+       }
+      }
+     }
+    },
+    "root": {
+     "evidence": [
+      "E5",
+      "E6",
+      "E2",
+      "E8",
+      "E9",
+      "E3",
+      "E12"
+     ],
+     "mode": "silent",
+     "path": [
+      "gateway",
+      "checkout",
+      "inventory"
+     ],
+     "service": "inventory"
+    },
+    "signatures": {
+     "checkout": [
+      {
+       "count_base": 0,
+       "count_inc": 51,
+       "evidence": "E10",
+       "first_seen": 1795530843.5998018,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "7afeb195248e414e89e02859c8e09dbd",
+        "03eb9c83c8894fa7a316c47af10da7a1",
+        "1f87a2173fe34003bf09f6771cfe53b2"
+       ],
+       "signature": "UpstreamError: inventory timeout: after <n>ms",
+       "type": "UpstreamError",
+       "upstream": "inventory"
+      }
+     ],
+     "gateway": [
+      {
+       "count_base": 0,
+       "count_inc": 52,
+       "evidence": "E7",
+       "first_seen": 1795530843.54975,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "6819da9806514c5a8a1e5ded81213af9",
+        "7afeb195248e414e89e02859c8e09dbd",
+        "03eb9c83c8894fa7a316c47af10da7a1"
+       ],
+       "signature": "UpstreamError: checkout returned <n>",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      }
+     ],
+     "inventory": [],
+     "payments": []
+    },
+    "slo": "E1"
+   },
+   "items": [
+    {
+     "data": {
+      "bad": 52,
+      "onset": 1795530843.54975,
+      "requests": 53,
+      "slo": {
+       "latency_ms": 2000,
+       "target": 0.99
+      }
+     },
+     "id": "E1",
+     "kind": "slo_burn",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530843.550",
+     "summary": "gateway: 52 of 53 requests failed the SLO since onset (98.1%)"
+    },
+    {
+     "data": {
+      "calls_base": 460,
+      "calls_inc": 53,
+      "fail_base": 0.0043,
+      "fail_inc": 0.9811,
+      "kinds": {
+       "http_5xx": 52
+      }
+     },
+     "id": "E2",
+     "kind": "edge_health",
+     "service": "gateway",
+     "source": "calls service=gateway target=checkout ts>=1795530843.550",
+     "summary": "gateway -> checkout: 98.1% of 53 calls failed since onset (baseline 0.4%); kinds {'http_5xx': 52}"
+    },
+    {
+     "data": {
+      "calls_base": 884,
+      "calls_inc": 51,
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "timeout": 51
+      }
+     },
+     "id": "E3",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=inventory ts>=1795530843.550",
+     "summary": "checkout -> inventory: 100.0% of 51 calls failed since onset (baseline 0.0%); kinds {'timeout': 51}"
+    },
+    {
+     "data": {
+      "calls_base": 440,
+      "calls_inc": 0,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E4",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=payments ts>=1795530843.550",
+     "summary": "checkout -> payments: 0.0% of 0 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0043,
+      "err_inc": 0.9811,
+      "p95_base_ms": 37.1,
+      "p95_inc_ms": 804.3,
+      "reasons": [
+       "errors",
+       "latency"
+      ],
+      "requests_base": 460,
+      "requests_inc": 53
+     },
+     "id": "E5",
+     "kind": "service_health",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530843.550",
+     "summary": "gateway own telemetry: anomalous (errors, latency); errors 98.1% (baseline 0.4%), p95 804ms (baseline 37ms), 53 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 52,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "id": "E6",
+     "kind": "failure_attribution",
+     "service": "gateway",
+     "source": "requests service=gateway status>=500 ts>=1795530843.550",
+     "summary": "gateway: 52 failed requests since onset, by origin {'checkout': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 52,
+      "first_seen": 1795530843.54975,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "6819da9806514c5a8a1e5ded81213af9",
+       "7afeb195248e414e89e02859c8e09dbd",
+       "03eb9c83c8894fa7a316c47af10da7a1"
+      ],
+      "signature": "UpstreamError: checkout returned <n>",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E7",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout returned <n>'",
+     "summary": "gateway: \"UpstreamError: checkout returned <n>\" x52 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9808,
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 802.9,
+      "reasons": [
+       "errors",
+       "latency"
+      ],
+      "requests_base": 460,
+      "requests_inc": 52
+     },
+     "id": "E8",
+     "kind": "service_health",
+     "service": "checkout",
+     "source": "requests service=checkout ts>=1795530843.550",
+     "summary": "checkout own telemetry: anomalous (errors, latency); errors 98.1% (baseline 0.0%), p95 803ms (baseline 36ms), 52 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 51,
+      "shares": {
+       "inventory": 1.0
+      }
+     },
+     "id": "E9",
+     "kind": "failure_attribution",
+     "service": "checkout",
+     "source": "requests service=checkout status>=500 ts>=1795530843.550",
+     "summary": "checkout: 51 failed requests since onset, by origin {'inventory': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 51,
+      "first_seen": 1795530843.5998018,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "7afeb195248e414e89e02859c8e09dbd",
+       "03eb9c83c8894fa7a316c47af10da7a1",
+       "1f87a2173fe34003bf09f6771cfe53b2"
+      ],
+      "signature": "UpstreamError: inventory timeout: after <n>ms",
+      "type": "UpstreamError",
+      "upstream": "inventory"
+     },
+     "id": "E10",
+     "kind": "error_signature",
+     "service": "checkout",
+     "source": "requests service=checkout error.signature='UpstreamError: inventory timeout: after <n>ms'",
+     "summary": "checkout: \"UpstreamError: inventory timeout: after <n>ms\" x51 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 302
+       },
+       "v1_1": {
+        "bad": 51,
+        "total": 210
+       }
+      }
+     },
+     "id": "E11",
+     "kind": "release_split",
+     "service": "checkout",
+     "source": "requests service=checkout group_by=release ts>=1795530798.550",
+     "summary": "checkout server errors by release: v1 0/302, v1_1 51/210"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 3000.9,
+      "reasons": [
+       "latency",
+       "silent"
+      ],
+      "requests_base": 885,
+      "requests_inc": 10
+     },
+     "id": "E12",
+     "kind": "service_health",
+     "service": "inventory",
+     "source": "requests service=inventory ts>=1795530843.550",
+     "summary": "inventory own telemetry: anomalous (latency, silent); errors 0.0% (baseline 0.0%), p95 3001ms (baseline 0ms), 10 requests since onset"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 441,
+      "requests_inc": 0
+     },
+     "id": "E13",
+     "kind": "service_health",
+     "service": "payments",
+     "source": "requests service=payments ts>=1795530843.550",
+     "summary": "payments own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 31ms), 0 requests since onset"
+    },
+    {
+     "data": {
+      "actor": "carol",
+      "from": "v1",
+      "id": "chg-0001",
+      "key": null,
+      "kind": "deploy",
+      "lag_s": 8.989,
+      "service": "checkout",
+      "to": "v1_1",
+      "ts": 1795530834.5609162
+     },
+     "id": "E14",
+     "kind": "change",
+     "service": "checkout",
+     "source": "changes id=chg-0001",
+     "summary": "checkout: deploy v1 -> v1_1 by carol, 9.0s before onset"
+    }
+   ],
+   "now": 1795530846.230686,
+   "onset": 1795530843.54975,
+   "service": "gateway"
+  },
+  "diagnosis": {
+   "accepted": "H1",
+   "hypotheses": [
+    {
+     "accepted": true,
+     "cause_class": "service_degraded",
+     "change_id": null,
+     "checks": [
+      {
+       "detail": "failure path gateway -> checkout -> inventory ends at inventory (silent)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E8",
+        "E9",
+        "E3",
+        "E12"
+       ],
+       "name": "failure path ends at this service",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "inventory: latency, silent; callers saw {'timeout': 51}",
+       "evidence": [
+        "E12"
+       ],
+       "name": "unhealthy by its own telemetry or unreachable",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "no deploy or config change to this service before onset",
+       "evidence": [],
+       "name": "no recent change to this service",
+       "passed": true,
+       "required": true
+      }
+     ],
+     "component": "inventory",
+     "id": "H1",
+     "plan": {
+      "inverse": null,
+      "kind": "restart",
+      "service": "inventory"
+     },
+     "score": 1.0,
+     "summary": "inventory is unresponsive or slow with no change to explain it"
+    },
+    {
+     "accepted": false,
+     "cause_class": "bad_release",
+     "change_id": "chg-0001",
+     "checks": [
+      {
+       "detail": "the change landed 9.0s before the first failure",
+       "evidence": [
+        "E14"
+       ],
+       "name": "change precedes onset",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "failure path gateway -> checkout -> inventory ends at inventory (silent)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E8",
+        "E9",
+        "E3",
+        "E12"
+       ],
+       "name": "failures originate in this service",
+       "passed": false,
+       "required": true
+      },
+      {
+       "detail": "dominant error \"UpstreamError: inventory timeout: after <n>ms\" is new since the change but is blamed on inventory",
+       "evidence": [
+        "E10"
+       ],
+       "name": "new error raised by this service's code",
+       "passed": false,
+       "required": true
+      },
+      {
+       "detail": "no later deploy of this service",
+       "evidence": [],
+       "name": "this release is still the running one",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "51 of 51 server errors came from v1_1; v1 had 0/302",
+       "evidence": [
+        "E11"
+       ],
+       "name": "errors are confined to the new release",
+       "passed": true,
+       "required": false
+      }
+     ],
+     "component": "checkout",
+     "id": "H2",
+     "plan": {
+      "from": "v1_1",
+      "inverse": {
+       "kind": "deploy",
+       "release": "v1_1",
+       "service": "checkout"
+      },
+      "kind": "rollback_release",
+      "service": "checkout",
+      "to": "v1"
+     },
+     "score": 0.6,
+     "summary": "release v1_1 of checkout introduced a defect"
+    }
+   ],
+   "reason": "H1 is the only hypothesis whose required checks all pass",
+   "root": {
+    "evidence": [
+     "E5",
+     "E6",
+     "E2",
+     "E8",
+     "E9",
+     "E3",
+     "E12"
+    ],
+    "mode": "silent",
+    "path": [
+     "gateway",
+     "checkout",
+     "inventory"
+    ],
+    "service": "inventory"
+   },
+   "verdict": "accepted"
+  },
+  "outcome": {
+   "reason": "service restored and proven on live traffic",
+   "state": "RESOLVED",
+   "time_to_close_s": 19.57,
+   "time_to_detect_s": 2.68
+  }
+ },
+ {
+  "scenario": "process_crash",
+  "state": "RESOLVED",
+  "bundle": {
+   "facts": {
+    "attribution": {
+     "checkout": {
+      "failures": 0,
+      "shares": {}
+     },
+     "gateway": {
+      "evidence": "E6",
+      "failures": 43,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "inventory": {
+      "failures": 0,
+      "shares": {}
+     },
+     "payments": {
+      "failures": 0,
+      "shares": {}
+     }
+    },
+    "changes": [],
+    "edges": {
+     "checkout->inventory": {
+      "calls_base": 534,
+      "calls_inc": 0,
+      "evidence": "E3",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "checkout->payments": {
+      "calls_base": 270,
+      "calls_inc": 0,
+      "evidence": "E4",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "gateway->checkout": {
+      "calls_base": 280,
+      "calls_inc": 43,
+      "evidence": "E2",
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "unreachable": 43
+      }
+     }
+    },
+    "health": {
+     "checkout": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E8",
+      "p95_base_ms": 35.5,
+      "p95_inc_ms": 0.0,
+      "reasons": [
+       "silent"
+      ],
+      "requests_base": 281,
+      "requests_inc": 0
+     },
+     "gateway": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 1.0,
+      "evidence": "E5",
+      "p95_base_ms": 37.2,
+      "p95_inc_ms": 0.4,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 280,
+      "requests_inc": 43
+     },
+     "inventory": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E10",
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 535,
+      "requests_inc": 0
+     },
+     "payments": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E11",
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 30.4,
+      "reasons": [],
+      "requests_base": 271,
+      "requests_inc": 1
+     }
+    },
+    "release_split": {
+     "checkout": {
+      "evidence": "E9",
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 281
+       }
+      }
+     }
+    },
+    "root": {
+     "evidence": [
+      "E5",
+      "E6",
+      "E2",
+      "E8"
+     ],
+     "mode": "silent",
+     "path": [
+      "gateway",
+      "checkout"
+     ],
+     "service": "checkout"
+    },
+    "signatures": {
+     "checkout": [],
+     "gateway": [
+      {
+       "count_base": 0,
+       "count_inc": 43,
+       "evidence": "E7",
+       "first_seen": 1795530878.8434956,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "bb03a3f186c0411f92399a7be3560caf",
+        "1052d8e2ed0b44d6b2915e0c732039f2",
+        "a004564428004e9ba413bb27a084c784"
+       ],
+       "signature": "UpstreamError: checkout unreachable",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      }
+     ],
+     "inventory": [],
+     "payments": []
+    },
+    "slo": "E1"
+   },
+   "items": [
+    {
+     "data": {
+      "bad": 43,
+      "onset": 1795530878.8434956,
+      "requests": 43,
+      "slo": {
+       "latency_ms": 2000,
+       "target": 0.99
+      }
+     },
+     "id": "E1",
+     "kind": "slo_burn",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530878.843",
+     "summary": "gateway: 43 of 43 requests failed the SLO since onset (100.0%)"
+    },
+    {
+     "data": {
+      "calls_base": 280,
+      "calls_inc": 43,
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "unreachable": 43
+      }
+     },
+     "id": "E2",
+     "kind": "edge_health",
+     "service": "gateway",
+     "source": "calls service=gateway target=checkout ts>=1795530878.843",
+     "summary": "gateway -> checkout: 100.0% of 43 calls failed since onset (baseline 0.0%); kinds {'unreachable': 43}"
+    },
+    {
+     "data": {
+      "calls_base": 534,
+      "calls_inc": 0,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E3",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=inventory ts>=1795530878.843",
+     "summary": "checkout -> inventory: 0.0% of 0 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "calls_base": 270,
+      "calls_inc": 0,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E4",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=payments ts>=1795530878.843",
+     "summary": "checkout -> payments: 0.0% of 0 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 1.0,
+      "p95_base_ms": 37.2,
+      "p95_inc_ms": 0.4,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 280,
+      "requests_inc": 43
+     },
+     "id": "E5",
+     "kind": "service_health",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530878.843",
+     "summary": "gateway own telemetry: anomalous (errors); errors 100.0% (baseline 0.0%), p95 0ms (baseline 37ms), 43 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 43,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "id": "E6",
+     "kind": "failure_attribution",
+     "service": "gateway",
+     "source": "requests service=gateway status>=500 ts>=1795530878.843",
+     "summary": "gateway: 43 failed requests since onset, by origin {'checkout': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 43,
+      "first_seen": 1795530878.8434956,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "bb03a3f186c0411f92399a7be3560caf",
+       "1052d8e2ed0b44d6b2915e0c732039f2",
+       "a004564428004e9ba413bb27a084c784"
+      ],
+      "signature": "UpstreamError: checkout unreachable",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E7",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout unreachable'",
+     "summary": "gateway: \"UpstreamError: checkout unreachable\" x43 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 35.5,
+      "p95_inc_ms": 0.0,
+      "reasons": [
+       "silent"
+      ],
+      "requests_base": 281,
+      "requests_inc": 0
+     },
+     "id": "E8",
+     "kind": "service_health",
+     "service": "checkout",
+     "source": "requests service=checkout ts>=1795530878.843",
+     "summary": "checkout own telemetry: anomalous (silent); errors 0.0% (baseline 0.0%), p95 0ms (baseline 36ms), 0 requests since onset"
+    },
+    {
+     "data": {
+      "releases": {
+       "v1": {
+        "bad": 0,
+        "total": 281
+       }
+      }
+     },
+     "id": "E9",
+     "kind": "release_split",
+     "service": "checkout",
+     "source": "requests service=checkout group_by=release ts>=1795530833.843",
+     "summary": "checkout server errors by release: v1 0/281"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.0,
+      "reasons": [],
+      "requests_base": 535,
+      "requests_inc": 0
+     },
+     "id": "E10",
+     "kind": "service_health",
+     "service": "inventory",
+     "source": "requests service=inventory ts>=1795530878.843",
+     "summary": "inventory own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 0ms), 0 requests since onset"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 30.6,
+      "p95_inc_ms": 30.4,
+      "reasons": [],
+      "requests_base": 271,
+      "requests_inc": 1
+     },
+     "id": "E11",
+     "kind": "service_health",
+     "service": "payments",
+     "source": "requests service=payments ts>=1795530878.843",
+     "summary": "payments own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 30ms (baseline 31ms), 1 requests since onset"
+    }
+   ],
+   "now": 1795530880.9328852,
+   "onset": 1795530878.8434956,
+   "service": "gateway"
+  },
+  "diagnosis": {
+   "accepted": "H1",
+   "hypotheses": [
+    {
+     "accepted": true,
+     "cause_class": "process_down",
+     "change_id": null,
+     "checks": [
+      {
+       "detail": "failure path gateway -> checkout ends at checkout (silent)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E8"
+       ],
+       "name": "failure path ends at this service",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "checkout: silent; callers saw {'unreachable': 43}",
+       "evidence": [
+        "E8"
+       ],
+       "name": "unhealthy by its own telemetry or unreachable",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "no deploy or config change to this service before onset",
+       "evidence": [],
+       "name": "no recent change to this service",
+       "passed": true,
+       "required": true
+      }
+     ],
+     "component": "checkout",
+     "id": "H1",
+     "plan": {
+      "inverse": null,
+      "kind": "restart",
+      "service": "checkout"
+     },
+     "score": 1.0,
+     "summary": "checkout is not accepting connections"
+    }
+   ],
+   "reason": "H1 is the only hypothesis whose required checks all pass",
+   "root": {
+    "evidence": [
+     "E5",
+     "E6",
+     "E2",
+     "E8"
+    ],
+    "mode": "silent",
+    "path": [
+     "gateway",
+     "checkout"
+    ],
+    "service": "checkout"
+   },
+   "verdict": "accepted"
+  },
+  "outcome": {
+   "reason": "service restored and proven on live traffic",
+   "state": "RESOLVED",
+   "time_to_close_s": 18.89,
+   "time_to_detect_s": 2.09
+  }
+ },
+ {
+  "scenario": "external_dependency",
+  "state": "ESCALATED",
+  "bundle": {
+   "facts": {
+    "attribution": {
+     "checkout": {
+      "evidence": "E9",
+      "failures": 155,
+      "shares": {
+       "payments": 1.0
+      }
+     },
+     "gateway": {
+      "evidence": "E6",
+      "failures": 156,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "inventory": {
+      "failures": 0,
+      "shares": {}
+     },
+     "payments": {
+      "evidence": "E14",
+      "failures": 155,
+      "shares": {
+       "local": 1.0
+      }
+     }
+    },
+    "changes": [],
+    "edges": {
+     "checkout->inventory": {
+      "calls_base": 536,
+      "calls_inc": 325,
+      "evidence": "E3",
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "checkout->payments": {
+      "calls_base": 271,
+      "calls_inc": 155,
+      "evidence": "E4",
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "http_5xx": 155
+      }
+     },
+     "gateway->checkout": {
+      "calls_base": 281,
+      "calls_inc": 165,
+      "evidence": "E2",
+      "fail_base": 0.0,
+      "fail_inc": 0.9455,
+      "kinds": {
+       "http_5xx": 156
+      }
+     }
+    },
+    "health": {
+     "checkout": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9451,
+      "evidence": "E8",
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 5.5,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 164
+     },
+     "gateway": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9455,
+      "evidence": "E5",
+      "p95_base_ms": 36.8,
+      "p95_inc_ms": 7.3,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 165
+     },
+     "inventory": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "evidence": "E12",
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 537,
+      "requests_inc": 325
+     },
+     "payments": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 1.0,
+      "evidence": "E13",
+      "p95_base_ms": 30.5,
+      "p95_inc_ms": 0.6,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 272,
+      "requests_inc": 155
+     }
+    },
+    "release_split": {
+     "checkout": {
+      "evidence": "E11",
+      "releases": {
+       "v1": {
+        "bad": 155,
+        "total": 446
+       }
+      }
+     }
+    },
+    "root": {
+     "evidence": [
+      "E5",
+      "E6",
+      "E2",
+      "E8",
+      "E9",
+      "E4",
+      "E13",
+      "E14"
+     ],
+     "mode": "local",
+     "path": [
+      "gateway",
+      "checkout",
+      "payments"
+     ],
+     "service": "payments"
+    },
+    "signatures": {
+     "checkout": [
+      {
+       "count_base": 0,
+       "count_inc": 155,
+       "evidence": "E10",
+       "first_seen": 1795530913.5104342,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "8aa4dd284c234923a2a843914bc758df",
+        "c2f301a02e5f4825bd044de806bedbc3",
+        "e727a70aa51c4eddb7210283552b0bd0"
+       ],
+       "signature": "UpstreamError: payments http_<n>xx: status <n>",
+       "type": "UpstreamError",
+       "upstream": "payments"
+      }
+     ],
+     "gateway": [
+      {
+       "count_base": 0,
+       "count_inc": 156,
+       "evidence": "E7",
+       "first_seen": 1795530913.4647906,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "ef2070b60858477c8e9b3a1974262b2d",
+        "8aa4dd284c234923a2a843914bc758df",
+        "c2f301a02e5f4825bd044de806bedbc3"
+       ],
+       "signature": "UpstreamError: checkout returned <n>",
+       "type": "UpstreamError",
+       "upstream": "checkout"
+      }
+     ],
+     "inventory": [],
+     "payments": [
+      {
+       "count_base": 0,
+       "count_inc": 155,
+       "evidence": "E15",
+       "first_seen": 1795530913.5099785,
+       "frame": null,
+       "novel": true,
+       "sample_traces": [
+        "8aa4dd284c234923a2a843914bc758df",
+        "c2f301a02e5f4825bd044de806bedbc3",
+        "e727a70aa51c4eddb7210283552b0bd0"
+       ],
+       "signature": "RuntimeError: payment processor unavailable",
+       "type": "RuntimeError",
+       "upstream": null
+      }
+     ]
+    },
+    "slo": "E1"
+   },
+   "items": [
+    {
+     "data": {
+      "bad": 156,
+      "onset": 1795530913.4647906,
+      "requests": 165,
+      "slo": {
+       "latency_ms": 2000,
+       "target": 0.99
+      }
+     },
+     "id": "E1",
+     "kind": "slo_burn",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530913.465",
+     "summary": "gateway: 156 of 165 requests failed the SLO since onset (94.5%)"
+    },
+    {
+     "data": {
+      "calls_base": 281,
+      "calls_inc": 165,
+      "fail_base": 0.0,
+      "fail_inc": 0.9455,
+      "kinds": {
+       "http_5xx": 156
+      }
+     },
+     "id": "E2",
+     "kind": "edge_health",
+     "service": "gateway",
+     "source": "calls service=gateway target=checkout ts>=1795530913.465",
+     "summary": "gateway -> checkout: 94.5% of 165 calls failed since onset (baseline 0.0%); kinds {'http_5xx': 156}"
+    },
+    {
+     "data": {
+      "calls_base": 536,
+      "calls_inc": 325,
+      "fail_base": 0.0,
+      "fail_inc": 0.0,
+      "kinds": {}
+     },
+     "id": "E3",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=inventory ts>=1795530913.465",
+     "summary": "checkout -> inventory: 0.0% of 325 calls failed since onset (baseline 0.0%); kinds none"
+    },
+    {
+     "data": {
+      "calls_base": 271,
+      "calls_inc": 155,
+      "fail_base": 0.0,
+      "fail_inc": 1.0,
+      "kinds": {
+       "http_5xx": 155
+      }
+     },
+     "id": "E4",
+     "kind": "edge_health",
+     "service": "checkout",
+     "source": "calls service=checkout target=payments ts>=1795530913.465",
+     "summary": "checkout -> payments: 100.0% of 155 calls failed since onset (baseline 0.0%); kinds {'http_5xx': 155}"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9455,
+      "p95_base_ms": 36.8,
+      "p95_inc_ms": 7.3,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 281,
+      "requests_inc": 165
+     },
+     "id": "E5",
+     "kind": "service_health",
+     "service": "gateway",
+     "source": "requests service=gateway ts>=1795530913.465",
+     "summary": "gateway own telemetry: anomalous (errors); errors 94.5% (baseline 0.0%), p95 7ms (baseline 37ms), 165 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 156,
+      "shares": {
+       "checkout": 1.0
+      }
+     },
+     "id": "E6",
+     "kind": "failure_attribution",
+     "service": "gateway",
+     "source": "requests service=gateway status>=500 ts>=1795530913.465",
+     "summary": "gateway: 156 failed requests since onset, by origin {'checkout': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 156,
+      "first_seen": 1795530913.4647906,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "ef2070b60858477c8e9b3a1974262b2d",
+       "8aa4dd284c234923a2a843914bc758df",
+       "c2f301a02e5f4825bd044de806bedbc3"
+      ],
+      "signature": "UpstreamError: checkout returned <n>",
+      "type": "UpstreamError",
+      "upstream": "checkout"
+     },
+     "id": "E7",
+     "kind": "error_signature",
+     "service": "gateway",
+     "source": "requests service=gateway error.signature='UpstreamError: checkout returned <n>'",
+     "summary": "gateway: \"UpstreamError: checkout returned <n>\" x156 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 0.9451,
+      "p95_base_ms": 35.7,
+      "p95_inc_ms": 5.5,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 282,
+      "requests_inc": 164
+     },
+     "id": "E8",
+     "kind": "service_health",
+     "service": "checkout",
+     "source": "requests service=checkout ts>=1795530913.465",
+     "summary": "checkout own telemetry: anomalous (errors); errors 94.5% (baseline 0.0%), p95 6ms (baseline 36ms), 164 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 155,
+      "shares": {
+       "payments": 1.0
+      }
+     },
+     "id": "E9",
+     "kind": "failure_attribution",
+     "service": "checkout",
+     "source": "requests service=checkout status>=500 ts>=1795530913.465",
+     "summary": "checkout: 155 failed requests since onset, by origin {'payments': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 155,
+      "first_seen": 1795530913.5104342,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "8aa4dd284c234923a2a843914bc758df",
+       "c2f301a02e5f4825bd044de806bedbc3",
+       "e727a70aa51c4eddb7210283552b0bd0"
+      ],
+      "signature": "UpstreamError: payments http_<n>xx: status <n>",
+      "type": "UpstreamError",
+      "upstream": "payments"
+     },
+     "id": "E10",
+     "kind": "error_signature",
+     "service": "checkout",
+     "source": "requests service=checkout error.signature='UpstreamError: payments http_<n>xx: status <n>'",
+     "summary": "checkout: \"UpstreamError: payments http_<n>xx: status <n>\" x155 since onset (not seen in baseline)"
+    },
+    {
+     "data": {
+      "releases": {
+       "v1": {
+        "bad": 155,
+        "total": 446
+       }
+      }
+     },
+     "id": "E11",
+     "kind": "release_split",
+     "service": "checkout",
+     "source": "requests service=checkout group_by=release ts>=1795530868.465",
+     "summary": "checkout server errors by release: v1 155/446"
+    },
+    {
+     "data": {
+      "anomalous": false,
+      "err_base": 0.0,
+      "err_inc": 0.0,
+      "p95_base_ms": 0.3,
+      "p95_inc_ms": 0.3,
+      "reasons": [],
+      "requests_base": 537,
+      "requests_inc": 325
+     },
+     "id": "E12",
+     "kind": "service_health",
+     "service": "inventory",
+     "source": "requests service=inventory ts>=1795530913.465",
+     "summary": "inventory own telemetry: healthy; errors 0.0% (baseline 0.0%), p95 0ms (baseline 0ms), 325 requests since onset"
+    },
+    {
+     "data": {
+      "anomalous": true,
+      "err_base": 0.0,
+      "err_inc": 1.0,
+      "p95_base_ms": 30.5,
+      "p95_inc_ms": 0.6,
+      "reasons": [
+       "errors"
+      ],
+      "requests_base": 272,
+      "requests_inc": 155
+     },
+     "id": "E13",
+     "kind": "service_health",
+     "service": "payments",
+     "source": "requests service=payments ts>=1795530913.465",
+     "summary": "payments own telemetry: anomalous (errors); errors 100.0% (baseline 0.0%), p95 1ms (baseline 30ms), 155 requests since onset"
+    },
+    {
+     "data": {
+      "failures": 155,
+      "shares": {
+       "local": 1.0
+      }
+     },
+     "id": "E14",
+     "kind": "failure_attribution",
+     "service": "payments",
+     "source": "requests service=payments status>=500 ts>=1795530913.465",
+     "summary": "payments: 155 failed requests since onset, by origin {'local': 1.0}"
+    },
+    {
+     "data": {
+      "count_base": 0,
+      "count_inc": 155,
+      "first_seen": 1795530913.5099785,
+      "frame": null,
+      "novel": true,
+      "sample_traces": [
+       "8aa4dd284c234923a2a843914bc758df",
+       "c2f301a02e5f4825bd044de806bedbc3",
+       "e727a70aa51c4eddb7210283552b0bd0"
+      ],
+      "signature": "RuntimeError: payment processor unavailable",
+      "type": "RuntimeError",
+      "upstream": null
+     },
+     "id": "E15",
+     "kind": "error_signature",
+     "service": "payments",
+     "source": "requests service=payments error.signature='RuntimeError: payment processor unavailable'",
+     "summary": "payments: \"RuntimeError: payment processor unavailable\" x155 since onset (not seen in baseline)"
+    }
+   ],
+   "now": 1795530921.6660602,
+   "onset": 1795530913.4647906,
+   "service": "gateway"
+  },
+  "diagnosis": {
+   "accepted": "H1",
+   "hypotheses": [
+    {
+     "accepted": true,
+     "cause_class": "external_dependency",
+     "change_id": null,
+     "checks": [
+      {
+       "detail": "failure path gateway -> checkout -> payments ends at payments (local)",
+       "evidence": [
+        "E5",
+        "E6",
+        "E2",
+        "E8",
+        "E9",
+        "E4",
+        "E13",
+        "E14"
+       ],
+       "name": "failure path ends at this service",
+       "passed": true,
+       "required": true
+      },
+      {
+       "detail": "payments: errors; callers saw {'http_5xx': 155}",
+       "evidence": [
+        "E13"
+       ],
+       "name": "unhealthy by its own telemetry or unreachable",
+       "passed": true,
+       "required": true
+      }
+     ],
+     "component": "payments",
+     "id": "H1",
+     "plan": null,
+     "score": 1.0,
+     "summary": "external dependency payments is failing"
+    }
+   ],
+   "reason": "H1 is the only hypothesis whose required checks all pass",
+   "root": {
+    "evidence": [
+     "E5",
+     "E6",
+     "E2",
+     "E8",
+     "E9",
+     "E4",
+     "E13",
+     "E14"
+    ],
+    "mode": "local",
+    "path": [
+     "gateway",
+     "checkout",
+     "payments"
+    ],
+    "service": "payments"
+   },
+   "verdict": "accepted"
+  },
+  "outcome": {
+   "reason": "external dependency payments is failing: no safe automated action exists",
+   "state": "ESCALATED",
+   "time_to_close_s": 8.2,
+   "time_to_detect_s": 2.06
+  }
+ }
+]
