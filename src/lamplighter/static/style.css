@@ -228,4 +228,12 @@ summary{cursor:pointer;font:700 15px var(--display)}
 @media (max-width:1100px){.grid.three,.grid.two{grid-template-columns:1fr}}
 @media (max-width:1000px){.io{grid-template-columns:1fr}.how ol{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:1fr}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:900px){.desk{grid-template-columns:1fr}.stage{grid-template-columns:1fr;grid-template-areas:"status" "view" "minute"}.status h1,.status p{min-height:0}.vitals{margin-top:18px}.key{display:none}}
+@media (max-width:640px){
+  .view{height:300px}
+  .console-head{flex-wrap:wrap;gap:8px 12px}
+  .console-head h2{order:3;flex:1 0 100%}
+  .console-meta{margin-left:auto}
+  .track li{font-size:10.5px;line-height:1.25;padding-right:6px;overflow-wrap:anywhere}
+  .how ol{grid-template-columns:1fr}
+}
 @media (prefers-reduced-motion:reduce){.track li.now::after,.lg-flame,html[data-mood="alarm"] .lg-flame{animation:none}}

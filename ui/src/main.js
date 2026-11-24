@@ -281,14 +281,14 @@ function renderDetail(incident, now) {
       h("ul", { class: "notes" }, data.narrative.narrative.slice(0, 6).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" "))))),
       data.narrative.next_steps.length ? drawer("next", "Suggested next steps", h("ul", { class: "notes" }, data.narrative.next_steps.slice(0, 4).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" ")))))) : null));
   }
-  $("detail").replaceChildren(head, track(incident), tiles,
+  $("detail").replaceChildren(...[head, track(incident), tiles,
     outcome.reason ? h("p", { class: "outcome " + tone }, sentence(outcome.reason) + ".") : null,
     h("div", { class: "grid three" }, trigger, cause, decision),
     h("div", { class: "grid two" }, evidencePanel, proof),
     h("div", { class: "grid " + (extra.length ? "two" : "one") }, log, ...extra.slice(0, 1)),
     ...extra.slice(1),
     drawer("evidence", "All " + evidence.length + " pieces of evidence", h("ul", { class: "evidence" }, evidence.map((item) => h("li", {}, h("code", {}, item.id), item.summary)))),
-    h("p", { class: "foot" }, incident.audit.length + " audit entries, chain head " + (incident.audit.length ? incident.audit[incident.audit.length - 1].hash.slice(0, 16) : "-")));
+    h("p", { class: "foot" }, incident.audit.length + " audit entries, chain head " + (incident.audit.length ? incident.audit[incident.audit.length - 1].hash.slice(0, 16) : "-"))].filter(Boolean));
 }
 
 // ---------- loop ----------
