@@ -53,6 +53,29 @@
     <div id="strip" class="strip"></div>
   </div>
 </section>
+<section class="how" aria-label="How Lamplighter works">
+  <ol>
+    <li><b>Watch</b><span>Reads every request, call and change from the services above.</span></li>
+    <li><b>Diagnose</b><span>Finds where failures start and tests each possible cause against the evidence.</span></li>
+    <li><b>Rehearse</b><span>Replays real traffic in a sandbox: broken before the fix, working after.</span></li>
+    <li><b>Fix and prove</b><span>Applies the fix, then watches live traffic until it is proven, or undoes it.</span></li>
+  </ol>
+</section>
+<section class="io">
+  <div class="reads">
+    <h2>What Lamplighter is reading</h2>
+    <dl class="feeds">
+      <div><dt>Telemetry</dt><dd id="in-telemetry">waiting for data</dd></div>
+      <div><dt>Recent changes</dt><dd><ul id="in-changes" class="changes"><li class="quiet">No deploys or setting changes yet.</li></ul></dd></div>
+      <div><dt>What it may do on its own</dt><dd><ul id="in-policy" class="rules"></ul></dd></div>
+    </dl>
+  </div>
+  <div id="lab" class="lab" hidden>
+    <div class="lab-head"><h2>Break something</h2><button id="reset" class="ghost" type="button">Reset the shop</button></div>
+    <p class="quiet">These buttons inject a real fault into the demo shop. They exist only in the demo. <span id="lab-note"></span></p>
+    <div id="scenarios" class="cards"></div>
+  </div>
+</section>
 <main class="desk">
   <nav class="rail" aria-label="Incidents"><h2>Incidents</h2><div id="incidents"></div></nav>
   <article id="detail" class="case"><p class="quiet">Nothing has gone wrong yet. When the street dims, the case appears here.</p></article>

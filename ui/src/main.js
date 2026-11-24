@@ -79,7 +79,8 @@ function headline(status, incident) {
   }
   document.title = mood === "calm" && !fresh ? "Lamplighter: every lamp is lit" : title + " - Lamplighter";
   $("headline").textContent = title;
-  $("subline").textContent = fresh && incident.state === "ESCALATED" ? sentence((incident.data.outcome || {}).reason || "") : fresh && incident.data.plan && !incident.closed_at ? "Plan: " + describePlan(incident.data.plan) + "." : "";
+  const watching = "Watching " + ((status.inputs || {}).services || 0) + " services in the " + ((status.inputs || {}).environment || "system") + ". When customers start failing, it finds the cause, rehearses a fix, applies it and proves it.";
+  $("subline").textContent = fresh && incident.state === "ESCALATED" ? sentence((incident.data.outcome || {}).reason || "") : fresh && incident.data.plan && !incident.closed_at ? "Plan: " + describePlan(incident.data.plan) + "." : fresh ? "" : watching;
 }
 
 function vitals(status) {
@@ -105,6 +106,50 @@ function vitals(status) {
     h("span", { class: "pill" + (status.mode === "auto" ? " on" : "") }, status.mode === "auto" ? "Fixes on its own" : status.mode === "propose" ? "Asks before fixing" : "Watching only"),
     status.kill_switch ? h("span", { class: "pill warn" }, "Kill switch on") : null,
     h("span", { class: "pill" }, status.model ? "Model on" : "Model off")].filter(Boolean));
+}
+
+// ---------- what goes in: telemetry, changes, policy, and (in the demo) faults you inject ----------
+const ACTIONS = { rollback_release: "Roll back a release", revert_config: "Revert a setting", restart: "Restart a service" };
+const TIERS = { auto: "on its own", approval: "after approval", deny: "never" };
+function describeChange(change) {
+  if (change.kind === "deploy") return change.service + " deployed " + change.from + " to " + change.to;
+  if (change.kind === "config") return change.service + " setting " + change.key + " changed " + change.from + " to " + change.to;
+  return change.service + " restarted";
+}
+function inputs(status) {
+  const data = status.inputs;
+  if (!data) return;
+  $("in-telemetry").textContent = "About " + data.records_per_s + " records a second (requests and calls) from " + data.services + " services, plus every deploy and setting change.";
+  const changes = data.changes.slice().reverse();
+  $("in-changes").replaceChildren(...(changes.length ? changes.map((change) => {
+    const own = change.actor === "lamplighter";
+    return h("li", {}, h("time", {}, clock(change.ts)), h("span", {}, describeChange(change) + ", by ", h("span", { class: own ? "auto" : "" }, own ? "Lamplighter" : change.actor)));
+  }) : [h("li", { class: "quiet" }, "No deploys or setting changes yet.")]));
+  $("in-policy").replaceChildren(...Object.entries(data.policy).map(([kind, tier]) =>
+    h("li", { class: tier }, (ACTIONS[kind] || kind) + ": ", h("b", {}, TIERS[tier] || tier))));
+}
+let labReady = false, busy = false;
+async function sendFault(name, label) {
+  try {
+    const response = await fetch("/v1/demo/scenarios/" + name, { method: "POST", headers: { "X-Lamplighter-Demo": "1" } });
+    $("lab-note").textContent = response.ok ? "Sent: " + label.toLowerCase() + ". Watch the street, then read the case below." : response.status === 409 ? "Wait for the open incident to close first." : "That did not work (" + response.status + ").";
+  } catch (error) { $("lab-note").textContent = "Could not reach the demo."; }
+}
+async function loadLab() {
+  try {
+    const response = await fetch("/v1/demo/scenarios");
+    if (!response.ok) return;                          // not the demo: the panel stays hidden
+    const list = (await response.json()).scenarios.filter((s) => s.name !== "reset");
+    $("scenarios").replaceChildren(...list.map((s) => h("button", { class: "card", type: "button", onclick: () => sendFault(s.name, s.label) },
+      h("b", {}, s.label), h("span", {}, s.what), h("em", {}, "A correct response: " + s.expect.charAt(0).toLowerCase() + s.expect.slice(1)))));
+    $("reset").addEventListener("click", () => sendFault("reset", "Reset the shop"));
+    $("lab").hidden = false; labReady = true;
+  } catch (error) { /* no demo panel */ }
+}
+function lockLab(open) {
+  if (!labReady || busy === open) return;
+  busy = open;
+  for (const card of document.querySelectorAll("#scenarios .card")) card.disabled = open;
 }
 
 // ---------- incidents ----------
@@ -180,7 +225,13 @@ function renderDetail(incident) {
   }
   const why = h("div", {}, h("h3", {}, "Why it thinks so"), ...diagnosis.hypotheses.map((hyp) => hypothesis(hyp, diagnosis.accepted)));
   if (!diagnosis.hypotheses.length) why.append(h("p", { class: "quiet" }, "Collecting evidence."));
-  const side = h("div", {}, h("h3", {}, "Proof"), proofs(data));
+  const EVENTS = { diagnosed: "Diagnosed; plan made", approval_requested: "Asked a human to approve", approved: "Approved", preflight_passed: "Fix rehearsed in a sandbox",
+    gate_passed: "Still failing, plan still valid", action_done: "Fix applied", proof_failed: "Proof failed; undoing", closed: CLOSED[incident.state] || "Closed" };
+  const side = h("div", {}, h("h3", {}, "What happened, step by step"),
+    h("ul", { class: "steps" }, [h("li", {}, h("time", {}, clock((data.bundle || {}).onset)), "First customer request failed"),
+      h("li", {}, h("time", {}, clock(incident.opened_at)), "Lamplighter noticed")].concat(data.timeline.map((step) =>
+      h("li", {}, h("time", {}, clock(step.ts)), EVENTS[step.event] || step.event)))),
+    h("h3", {}, "Proof"), proofs(data));
   if (data.fixforward) {
     const brief = data.fixforward, frame = brief.culprit.frame, patch = brief.patch;
     side.append(h("h3", {}, "The line that broke"),
@@ -206,6 +257,8 @@ async function refresh() {
   try {
     const [status, list] = await Promise.all([api("/v1/status"), api("/v1/incidents?limit=20")]);
     vitals(status);
+    inputs(status);
+    lockLab(list.incidents.some((incident) => !incident.closed_at));
     renderList(list.incidents);
     const newest = list.incidents[0] ? await api("/v1/incidents/" + list.incidents[0].id) : null;
     let root = null;
@@ -238,5 +291,6 @@ applyTheme(initialTheme());
 $("theme").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
 $("auth").addEventListener("submit", (event) => event.preventDefault());
 $("token").addEventListener("input", (event) => { token = event.target.value.trim(); });
+loadLab();
 refresh();
 setInterval(refresh, 1000);

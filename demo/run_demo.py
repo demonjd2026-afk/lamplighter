@@ -1,6 +1,7 @@
 """Run the demo: the shop, live traffic, Lamplighter and its dashboard, then break things.
 
-    python -m demo.run_demo                       # tour: bad release, bad config, hung dependency
+    python -m demo.run_demo                       # interactive: break things from the dashboard
+    python -m demo.run_demo --tour                # scripted: bad release, bad config, hung dependency
     python -m demo.run_demo --scenario bad_release
     python -m demo.run_demo --mode propose        # wait for a human to approve each plan
     python -m demo.run_demo --hold                # keep everything running afterwards
@@ -31,6 +32,48 @@ from lamplighter.config import LOOPBACK_HOSTS, ConfigError, validate_url
 from lamplighter.llm import AnthropicClient, LLMClient, OpenAICompatibleClient
 
 TOUR = ["bad_release", "bad_config", "dependency_stuck"]
+# What the dashboard's "Break something" panel offers: (label, what it does, what a correct response is)
+CARDS = {
+    "bad_release": ("Ship a broken release", "Deploys checkout v2, which crashes on any cart without a coupon.",
+                    "Roll checkout back to v1"),
+    "bad_config": ("Set a timeout far too low", "Changes the payments timeout on checkout from 800 ms to 5 ms.",
+                   "Put the timeout back"),
+    "dependency_stuck": ("Hang a dependency after a harmless deploy", "Deploys a harmless checkout release, then inventory stops answering.",
+                         "Restart inventory, leave the deploy alone"),
+    "process_crash": ("Kill a service", "The checkout process is killed.", "Restart checkout"),
+    "external_dependency": ("Take the payment provider down", "The third-party payments service starts returning errors.",
+                            "No action: hand it to a human"),
+    "transient_blip": ("Cause a four-second blip", "Inventory hangs for four seconds, then recovers by itself.",
+                       "No action: leave it alone"),
+    "client_error_burst": ("Flood it with invalid requests", "Most customers send invalid carts for fifteen seconds.",
+                           "No incident: not an outage"),
+}
+
+
+def demo_hooks(lab: Lab) -> dict:
+    """Fault triggers for the dashboard. Each runs in the background so the request returns at once."""
+    def trigger(name: str):
+        return lambda: threading.Thread(target=BY_NAME[name].inject, args=(lab,), daemon=True).start()
+
+    def reset() -> None:
+        def work() -> None:
+            for service in ("inventory", "payments", "checkout"):
+                lab.plane.inject_fault(service, "none")
+            state = lab.plane.describe()
+            if not state["processes"].get("checkout"):
+                lab.plane.restart("checkout", actor="demo-reset")
+            if state["releases"]["checkout"] != "v1":
+                lab.plane.deploy("checkout", "v1", actor="demo-reset")
+            if state["config"]["checkout"].get("payments.timeout_ms") != 800:
+                lab.plane.set_config("checkout", "payments.timeout_ms", 800, actor="demo-reset")
+            lab.traffic.invalid_fraction = 0.04
+        threading.Thread(target=work, daemon=True).start()
+
+    hooks = {name: {"label": label, "what": what, "expect": expect, "run": trigger(name)}
+             for name, (label, what, expect) in CARDS.items()}
+    hooks["reset"] = {"label": "Reset the shop", "what": "Clears every fault and restores release v1 and the default settings.",
+                      "expect": "", "run": reset}
+    return hooks
 
 
 def model_from_env() -> LLMClient | None:
@@ -50,7 +93,8 @@ def model_from_env() -> LLMClient | None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--scenario", choices=sorted(BY_NAME), action="append", help="repeatable; default is a tour")
+    parser.add_argument("--scenario", choices=sorted(BY_NAME), action="append", help="run this scenario (repeatable)")
+    parser.add_argument("--tour", action="store_true", help="run the three-scenario tour instead of waiting for clicks")
     parser.add_argument("--mode", choices=["auto", "propose", "observe"], default="auto")
     parser.add_argument("--port", type=int, default=8088)
     parser.add_argument("--patch", action="store_true", help="let the model propose a patch (verified in a sandbox)")
@@ -74,7 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         print("starting the shop, traffic and Lamplighter ...", flush=True)
         lab.start(warmup_s=0)
-        app = create_app(lab.settings, lab.runtime.store, lab.runtime.telemetry, lab.runtime.orchestrator)
+        app = create_app(lab.settings, lab.runtime.store, lab.runtime.telemetry, lab.runtime.orchestrator,
+                         demo=demo_hooks(lab))
         server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=args.port, log_level="warning"))
         threading.Thread(target=server.run, daemon=True).start()
         print(f"\n  dashboard: http://127.0.0.1:{args.port}\n  mode: {args.mode}   model: {'on' if model else 'off'}")
@@ -82,7 +127,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  API token for approvals (paste it into the dashboard): {api_token}")
         print("\nwarming up with healthy traffic (20 s) ...", flush=True)
         time.sleep(20)
-        for name in args.scenario or TOUR:
+        scripted = args.scenario or (TOUR if args.tour else [])
+        if not scripted:
+            print("\nready. Open the dashboard and use the \"Break something\" panel. Press Ctrl+C to stop.", flush=True)
+            args.hold = True
+        for name in scripted:
             scenario = BY_NAME[name]
             before = {i["id"] for i in lab.incidents()}
             print(f"\n=== {scenario.title} ({name}) ===", flush=True)
@@ -106,7 +155,8 @@ def main(argv: list[str] | None = None) -> int:
             lab.plane.inject_fault("payments", "none")
             time.sleep(35)  # let the windows clear and the cooldown pass before the next fault
         if args.hold:
-            print("\nholding; press Ctrl+C to stop", flush=True)
+            if scripted:
+                print("\nholding; press Ctrl+C to stop", flush=True)
             while True:
                 time.sleep(1)
     except KeyboardInterrupt:

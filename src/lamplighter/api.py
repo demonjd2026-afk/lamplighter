@@ -54,6 +54,13 @@ def _summary(incident: dict) -> dict:
             "plan": data.get("plan"), "plan_hash": data.get("plan_hash")}
 
 
+def _effective_tier(mode: str, tier: str) -> str:
+    """What actually happens to an action under the current mode: auto, approval or deny."""
+    if mode == "observe" or tier == "deny":
+        return "deny"
+    return "approval" if mode == "propose" else tier
+
+
 def _slow(recent: list[dict], earlier: list[dict]) -> bool:
     if len(recent) < 3 or len(earlier) < 10:
         return False
@@ -61,7 +68,10 @@ def _slow(recent: list[dict], earlier: list[dict]) -> bool:
     return now_p95 >= max(3 * then_p95, then_p95 + 200.0)
 
 
-def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orchestrator: Orchestrator) -> FastAPI:
+def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orchestrator: Orchestrator,
+               demo: dict | None = None) -> FastAPI:
+    """`demo` is only passed by the demo runner: a map of fault scenarios the dashboard may trigger against
+    the demo shop. A normal deployment passes nothing and those routes do not exist."""
     app = FastAPI(title="Lamplighter", version="0.1.0", docs_url=None, redoc_url=None, openapi_url=None)
 
     @app.middleware("http")
@@ -170,7 +180,16 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
             nodes[name] = {"deps": [d for d in meta.get("deps", []) if d in catalog], "requests": len(requests),
                            "bad": bad, "per_s": round(len(requests) / span, 1), "state": state,
                            "external": bool(meta.get("external")), "edge": bool(meta.get("edge"))}
+        recent_changes = [{"ts": c["ts"], "service": c.get("service"), "kind": c.get("kind"), "key": c.get("key"),
+                           "from": c.get("from"), "to": c.get("to"), "actor": c.get("actor")}
+                          for c in telemetry.changes(now - 1800, now)][-6:]
+        policy = orchestrator.policy
+        inputs = {"changes": redact(recent_changes), "services": len(nodes),
+                  "records_per_s": round(sum(n["per_s"] for n in nodes.values()) + sum(e["calls"] for e in edges) / span, 0),
+                  "policy": {kind: _effective_tier(policy.mode, rule.tier) for kind, rule in policy.rules.items()},
+                  "max_actions_per_hour": policy.max_actions_per_hour, "environment": "demo shop" if demo else "production"}
         return {"now": now, "services": out, "topology": {"span_s": span, "services": nodes, "edges": edges},
+                "inputs": inputs,
                 "mode": orchestrator.policy.mode,
                 "kill_switch": orchestrator.policy.kill_switch_on(), "model": bool(orchestrator.llm)}
 
@@ -226,6 +245,24 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
             raise HTTPException(422, "invalid alert body") from None
         opened = orchestrator.open_external(alert.service, alert.source)
         return {"ok": True, "incident": opened["id"] if opened else None}
+
+    if demo:
+        @app.get("/v1/demo/scenarios", dependencies=[Depends(can_read)])
+        def demo_scenarios() -> dict:
+            return {"scenarios": [{"name": name, "label": item["label"], "what": item["what"], "expect": item["expect"]}
+                                  for name, item in demo.items()]}
+
+        @app.post("/v1/demo/scenarios/{name}", dependencies=[Depends(can_read)])
+        def demo_run(name: str, request: Request) -> dict:
+            # a custom header cannot be sent by another site's page, so this cannot be triggered cross-site
+            if request.headers.get("x-lamplighter-demo") != "1":
+                raise HTTPException(403, "missing demo header")
+            if name not in demo:
+                raise HTTPException(404, "no such scenario")
+            if name != "reset" and store.list_incidents(open_only=True):
+                raise HTTPException(409, "an incident is already open; wait for it to close")
+            demo[name]["run"]()
+            return {"ok": True}
 
     @app.get("/")
     def index() -> FileResponse:

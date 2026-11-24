@@ -114,3 +114,26 @@ def test_incident_view_redacts_secrets(tmp_path):
     incident = store.open_incident("gateway", {"note": "password=hunter2 from a@b.co"}, time.time())
     text = client.get(f"/v1/incidents/{incident['id']}").text
     assert "hunter2" not in text and "a@b.co" not in text
+
+
+def test_demo_fault_routes_exist_only_in_the_demo_and_cannot_be_triggered_cross_site(tmp_path):
+    client, _ = make(tmp_path, public_read=True)
+    assert client.get("/v1/demo/scenarios").status_code == 404           # a normal deployment has no such routes
+    assert client.post("/v1/demo/scenarios/bad_release").status_code == 404
+
+    cfg = settings(tmp_path / "demo", public_read=True)
+    store, tel, fired = Store(cfg.db_path), FakeTelemetry(), []
+    orch = Orchestrator(cfg, store, tel, FakeActuator(), Policy())
+    hooks = {"bad_release": {"label": "Ship a broken release", "what": "x", "expect": "Roll back", "run": lambda: fired.append(1)},
+             "reset": {"label": "Reset", "what": "x", "expect": "", "run": lambda: fired.append("reset")}}
+    demo = TestClient(create_app(cfg, store, tel, orch, demo=hooks))
+    assert [s["name"] for s in demo.get("/v1/demo/scenarios").json()["scenarios"]] == ["bad_release", "reset"]
+    assert demo.post("/v1/demo/scenarios/bad_release").status_code == 403    # no custom header: a cross-site form post
+    assert demo.post("/v1/demo/scenarios/nope", headers={"X-Lamplighter-Demo": "1"}).status_code == 404
+    assert demo.post("/v1/demo/scenarios/bad_release", headers={"X-Lamplighter-Demo": "1"}).status_code == 200
+    store.open_incident("gateway", {}, time.time())
+    assert demo.post("/v1/demo/scenarios/bad_release", headers={"X-Lamplighter-Demo": "1"}).status_code == 409
+    assert demo.post("/v1/demo/scenarios/reset", headers={"X-Lamplighter-Demo": "1"}).status_code == 200
+    assert fired == [1, "reset"]
+    status = demo.get("/v1/status").json()
+    assert status["inputs"]["environment"] == "demo shop" and status["inputs"]["policy"]["restart"] == "approval"

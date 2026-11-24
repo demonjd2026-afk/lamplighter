@@ -62,12 +62,16 @@ pip install -e ".[dev]"
 ## Run
 
 ```bash
-python -m demo.run_demo                          # tour: bad release, bad config, hung dependency
+python -m demo.run_demo                          # interactive: break things from the dashboard
+python -m demo.run_demo --tour                   # scripted: bad release, bad config, hung dependency
 python -m demo.run_demo --scenario bad_release   # one scenario (see eval/scenarios.py for all eight)
 python -m demo.run_demo --mode propose           # wait for a human to approve each plan in the dashboard
 ```
 
-Open the dashboard at http://127.0.0.1:8088 while it runs. Each incident's postmortem path is printed.
+Open the dashboard at http://127.0.0.1:8088. In interactive mode, wait about 20 seconds for healthy traffic to
+build up, then use the "Break something" panel: each button injects one real fault into the demo shop and
+says what a correct response is. Watch the street react, then read the incident below it. Those buttons and
+their routes exist only in the demo; `lamplighter run` does not have them.
 
 ```bash
 pytest                 # 96 fast tests
