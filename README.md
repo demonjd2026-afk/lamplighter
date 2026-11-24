@@ -124,8 +124,8 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 - **At run time:** no model is bundled or required. Optionally, any model reachable through the Anthropic
   Messages API or an OpenAI-compatible chat completions endpoint; the model id is supplied by the user.
 - **Libraries:** FastAPI and Uvicorn (API and dashboard); pytest and httpx (tests); three.js (MIT), bundled
-  into the dashboard with esbuild; the Chakra Petch typeface (SIL Open Font License, text in
-  `src/lamplighter/static/fonts/OFL.txt`). Everything else, including the demo shop, is the Python standard library.
+  into the dashboard with esbuild; the Oxanium, Manrope and JetBrains Mono typefaces (SIL Open Font License, texts in
+  `src/lamplighter/static/fonts/LICENSES.txt`). Everything else, including the demo shop, is the Python standard library.
 - **Design references:** OpenRCA, ITBench, a 2026 failure analysis of LLM root-cause agents, the program
   repair literature on test overfitting, and the Google SRE Workbook on SLO alerting. Links are in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#sources-for-the-design-position).

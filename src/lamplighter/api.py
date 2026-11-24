@@ -241,7 +241,8 @@ def create_app(settings: Settings, store: Store, telemetry: TelemetrySource, orc
 
     @app.get("/static/fonts/{name}")
     def font(name: str) -> Response:
-        if name not in ("chakra-petch-latin-600-normal.woff2", "chakra-petch-latin-700-normal.woff2"):
+        if name not in ("oxanium-latin-wght-normal.woff2", "manrope-latin-wght-normal.woff2",
+                        "jetbrains-mono-latin-wght-normal.woff2"):
             raise HTTPException(404, "not found")
         return FileResponse(STATIC / "fonts" / name, media_type="font/woff2")
 

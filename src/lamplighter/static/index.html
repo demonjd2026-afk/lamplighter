@@ -4,11 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lamplighter</title>
+<link id="icon" rel="icon" type="image/svg+xml" href="/static/icon-calm.svg">
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <header class="bar">
-  <div class="brand"><span class="mark" aria-hidden="true"></span><span class="name">Lamplighter</span></div>
+  <a class="brand" href="/" aria-label="Lamplighter, home">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <circle class="lg-frame-line" cx="16" cy="5.4" r="1.9"/>
+      <path class="lg-frame" d="M8.5 12 11.8 7.6h8.4L23.5 12z"/>
+      <path class="lg-glass" d="M9.6 13.2h12.8l-1.9 10.6h-9z"/>
+      <path class="lg-flame" d="M16 15.2c2.6 2.9 2.6 5 0 7.1-2.6-2.1-2.6-4.2 0-7.1z"/>
+      <path class="lg-frame" d="M10 25h12v2.4H10z"/>
+    </svg>
+    <span class="wordmark"><span class="name">Lamplighter</span><span class="tagline">On-call, with proof</span></span>
+  </a>
   <div id="badges" class="badges"></div>
   <button id="theme" class="pill toggle" type="button" aria-pressed="false">Light mode</button>
   <form id="auth"><label class="sr" for="token">API token</label>

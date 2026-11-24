@@ -101,8 +101,8 @@ def test_security_headers_and_static_allow_list(tmp_path):
     assert 'src="/static/app.bundle.js"' in page.text and "onclick" not in page.text            # no inline script
     assert client.get("/static/app.bundle.js").status_code == 200
     assert client.get("/static/icon-alarm.svg").headers["content-type"].startswith("image/svg+xml")
-    assert client.get("/static/fonts/chakra-petch-latin-700-normal.woff2").status_code == 200
-    assert client.get("/static/fonts/OFL.txt").status_code == 404 and client.get("/static/fonts/..%2Fstyle.css").status_code == 404
+    assert client.get("/static/fonts/oxanium-latin-wght-normal.woff2").status_code == 200
+    assert client.get("/static/fonts/LICENSES.txt").status_code == 404 and client.get("/static/fonts/..%2Fstyle.css").status_code == 404
     assert "font-src 'self'" in page.headers["content-security-policy"]
     for name in ("../api.py", "index.html", "..%2Fapi.py", "app.bundle.js.map"):
         assert client.get(f"/static/{name}").status_code == 404

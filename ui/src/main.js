@@ -189,8 +189,8 @@ function renderDetail(incident) {
       h("p", { class: "quiet" }, "Suggested patch from the model: " + patch.status.replace("_", " ") + ". " + sentence(patch.reason || "")));
   }
   if (data.narrative && (data.narrative.narrative.length || data.narrative.next_steps.length)) {
-    side.append(h("h3", {}, "In plain words"), h("p", { class: "quiet" }, "Written by a model. " + data.narrative.dropped_ungrounded + " unsupported sentences were removed."),
-      h("ul", { class: "proofs" }, data.narrative.narrative.concat(data.narrative.next_steps).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" "))))));
+    side.append(h("h3", {}, "In plain words"), h("p", { class: "quiet" }, "Written by a model. " + (data.narrative.dropped_ungrounded === 1 ? "1 unsupported sentence was" : data.narrative.dropped_ungrounded + " unsupported sentences were") + " removed."),
+      h("ul", { class: "proofs" }, data.narrative.narrative.slice(0, 8).concat(data.narrative.next_steps.slice(0, 4)).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" "))))));
   }
   nodes.push(h("div", { class: "split" }, why, side));
   const open = document.querySelector("#detail details") ? document.querySelector("#detail details").open : false;

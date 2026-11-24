@@ -26,10 +26,10 @@ function box(w, h, d, material, x, y, z, parent, shadow = true) {
 }
 
 export class Street {
-  constructor(canvas, tags, reducedMotion) {
-    this.canvas = canvas; this.tags = tags; this.calm = reducedMotion;
+  constructor(canvas, tags, leaders, reducedMotion) {
+    this.canvas = canvas; this.tags = tags; this.leaders = leaders; this.calm = reducedMotion;
     this.nodes = new Map(); this.edges = []; this.signature = ""; this.root = null; this.pointer = new THREE.Vector2();
-    this.theme = THEMES.dark; this.clock = new THREE.Clock(); this.rings = []; this.particles = []; this.focus = new THREE.Vector3(0, 0.2, 0);
+    this.theme = THEMES.dark; this.clock = new THREE.Clock(); this.rings = []; this.particles = []; this.focus = new THREE.Vector3(0, -1.2, 0);
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -121,7 +121,7 @@ export class Street {
   }
 
   rebuild(topology, names) {
-    this.world.clear(); this.nodes.clear(); this.edges = []; this.tags.replaceChildren();
+    this.world.clear(); this.nodes.clear(); this.edges = []; this.tags.replaceChildren(); this.leaders.replaceChildren();
     const depth = new Map();
     const visit = (name, level) => {
       if ((depth.get(name) ?? -1) >= level || level > 12) return;
@@ -132,7 +132,7 @@ export class Street {
     const deepest = Math.max(0, ...depth.values()), columns = new Map();
     names.forEach((n) => columns.set(depth.get(n), (columns.get(depth.get(n)) || []).concat(n)));
     for (const [level, members] of columns) members.forEach((name, index) => {
-      const position = new THREE.Vector3((level - deepest / 2) * 4.6, 0, (index - (members.length - 1) / 2) * 4.4);
+      const position = new THREE.Vector3((level - deepest / 2) * 5.0, 0, (index - (members.length - 1) / 2) * 5.6);
       this.nodes.set(name, this.buildNode(name, position));
     });
     const m = this.materials;
@@ -172,7 +172,8 @@ export class Street {
     const tag = document.createElement("div"); tag.className = "tag";
     const label = document.createElement("b"), note = document.createElement("span"), flag = document.createElement("i");
     label.textContent = name; flag.textContent = "root cause"; tag.append(flag, label, note); this.tags.append(tag);
-    return { name, group, position, top: position.clone().add(new THREE.Vector3(0.55, LANTERN_Y, 0.55)), glass, windows, light, pool, halo, tag, note, glow: 1, data: null };
+    const leader = document.createElementNS("http://www.w3.org/2000/svg", "path"); this.leaders.append(leader);
+    return { name, group, position, leader, text: "", tagWidth: 0, tagX: null, top: position.clone().add(new THREE.Vector3(0.55, LANTERN_Y, 0.55)), glass, windows, light, pool, halo, tag, note, glow: 1, data: null };
   }
 
   buildProp(name, group, windows) {
@@ -212,6 +213,35 @@ export class Street {
   }
   mint() { return new THREE.Color(this.theme.mint); }
 
+  // External labelling: every label sits in one band under the scene, in the same left-to-right order as
+  // the lamps, never on top of the scene or of another label, joined to its lamp by a thin leader line.
+  placeTags(width, height, dt) {
+    const nodes = [...this.nodes.values()].filter((n) => n.anchor).sort((a, b) => a.anchor[0] - b.anchor[0]);
+    if (!nodes.length) return;
+    const gap = 12, margin = 10, bandTop = height - 70;
+    for (const node of nodes) if (!node.tagWidth) node.tagWidth = node.tag.offsetWidth || 120;
+    const total = nodes.reduce((sum, n) => sum + n.tagWidth, 0) + gap * (nodes.length - 1);
+    const squeeze = Math.min(1, (width - 2 * margin) / total);     // only matters on very narrow screens
+    let cursor = -Infinity;
+    for (const node of nodes) {                                     // left to right: keep order, forbid overlap
+      const w = node.tagWidth * squeeze;
+      node.want = Math.max(node.anchor[0] - w / 2, cursor); cursor = node.want + w + gap;
+    }
+    let limit = width - margin;
+    for (let i = nodes.length - 1; i >= 0; i--) {                    // right to left: pull back inside the view
+      const w = nodes[i].tagWidth * squeeze;
+      nodes[i].want = Math.max(margin, Math.min(nodes[i].want, limit - w)); limit = nodes[i].want - gap;
+    }
+    for (const node of nodes) {
+      node.tagX = node.tagX === null ? node.want : node.tagX + (node.want - node.tagX) * Math.min(1, dt * 8);
+      const w = node.tagWidth * squeeze, cx = node.tagX + w / 2, ay = Math.min(node.anchor[1], bandTop - 14);
+      node.tag.style.transform = `translate(${node.tagX.toFixed(1)}px, ${bandTop}px) scale(${squeeze.toFixed(3)})`;
+      const elbow = bandTop - 12;
+      node.leader.setAttribute("d", `M${node.anchor[0].toFixed(1)} ${ay.toFixed(1)} L${node.anchor[0].toFixed(1)} ${elbow} L${cx.toFixed(1)} ${elbow} L${cx.toFixed(1)} ${bandTop}`);
+      node.leader.setAttribute("class", node.tag.className.replace("tag", "lead"));
+    }
+  }
+
   // ---- frame ----
   frame() {
     const dt = Math.min(this.clock.getDelta(), 0.05), t = this.clock.elapsedTime, theme = this.theme;
@@ -222,10 +252,10 @@ export class Street {
     }
     // camera: slow drift, a little parallax, and it leans toward the root cause while an incident is open
     const rootNode = this.root ? this.nodes.get(this.root) : null;
-    const wanted = rootNode ? rootNode.position.clone().multiplyScalar(0.45).setY(0.2) : new THREE.Vector3(0.6, 0.2, 0);
+    const wanted = rootNode ? rootNode.position.clone().multiplyScalar(0.3).setY(-1.2) : new THREE.Vector3(0, -1.2, 0);
     this.focus.lerp(wanted, Math.min(1, dt * 1.5));
-    const angle = -0.5 + (this.calm ? 0 : Math.sin(t * 0.12) * 0.09) + this.pointer.x * 0.16;
-    const radius = (rootNode ? 15 : 16.5) * Math.max(1, 1.75 / this.camera.aspect), lift = 7.4 - this.pointer.y * 0.9;
+    const angle = -0.62 + (this.calm ? 0 : Math.sin(t * 0.12) * 0.05) + this.pointer.x * 0.1;
+    const radius = (rootNode ? 20 : 21.5) * Math.max(1, 1.55 / this.camera.aspect) * (this.camera.aspect > 2.4 ? 0.85 : 1), lift = 9.6 - this.pointer.y * 0.8;
     const goal = new THREE.Vector3(this.focus.x + Math.sin(angle) * radius, lift, this.focus.z + Math.cos(angle) * radius);
     if (this.camera.position.lengthSq() < 1) this.camera.position.copy(goal); else this.camera.position.lerp(goal, Math.min(1, dt * 2.2));
     this.camera.lookAt(this.focus);
@@ -243,16 +273,18 @@ export class Street {
       const isRoot = this.root === node.name && state !== "ok";
       node.halo.visible = isRoot;
       if (isRoot) { const pulse = (t * 0.8) % 1; node.halo.scale.setScalar(0.85 + pulse * 0.55); node.halo.material.opacity = 1 - pulse; }
-      // the label follows the plinth
-      const screen = node.position.clone().add(new THREE.Vector3(0.1, 0, 1.75)).project(this.camera);
-      node.tag.style.transform = `translate(-50%, 0) translate(${((screen.x + 1) / 2) * width}px, ${((1 - screen.y) / 2) * height}px)`;
-      node.tag.className = "tag " + state + (isRoot ? " root" : "");
+      // remember where the plinth is on screen; labels are laid out together below
+      const screen = node.position.clone().add(new THREE.Vector3(0, 0.1, 1.5)).project(this.camera);
+      node.anchor = [((screen.x + 1) / 2) * width, ((1 - screen.y) / 2) * height];
+      const cls = "tag " + state + (isRoot ? " root" : "");
+      if (node.tag.className !== cls) { node.tag.className = cls; node.tagWidth = 0; }
       if (node.data) {
         const share = node.data.requests ? Math.round((100 * node.data.bad) / node.data.requests) : 0;
-        const text = state === "dark" ? "not answering" : Math.round(node.data.per_s) + " requests a second" + (share ? ", " + share + "% failing" : "");
-        if (node.note.textContent !== text) node.note.textContent = text;
+        const text = state === "dark" ? "not answering" : Math.round(node.data.per_s) + " req/s" + (share ? ", " + share + "% failing" : "");
+        if (node.text !== text) { node.text = text; node.note.textContent = text; node.tagWidth = 0; }
       }
     }
+    this.placeTags(width, height, dt);
     // requests on the wires; a failed one burns out before it arrives
     if (!this.calm) for (const edge of this.edges) {
       edge.acc += Math.min(edge.rate, 14) * dt;
