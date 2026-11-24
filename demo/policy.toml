@@ -1,0 +1,15 @@
+# Demo policy: reversible, rehearsable actions run on their own; nothing else does.
+mode = "auto"
+max_actions_per_hour = 6
+
+[actions.rollback_release]
+tier = "auto"
+services = ["checkout"]
+
+[actions.revert_config]
+tier = "auto"
+services = ["checkout"]
+
+[actions.restart]
+tier = "auto"
+services = ["checkout", "inventory"]

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamplighter</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="lamp"></span>Lamplighter<small>the on-call engineer that proves its work</small></div>
+  <div id="badges"></div>
+  <form id="auth"><input id="token" type="password" placeholder="API token (for decisions)" autocomplete="off"></form>
+</header>
+<main>
+  <aside>
+    <section><h2>Live service health</h2><div id="services"></div></section>
+    <section><h2>Incidents</h2><div id="incidents"></div></section>
+  </aside>
+  <article id="detail"><p class="muted">No incident selected. This page updates on its own.</p></article>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+[
+ {
+  "scenario": "bad_release",
+  "seed": 101,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "rollback_release",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 1.99,
+  "impact_s": 8.74,
+  "failed_requests": 166,
+  "close_s": 18.87,
+  "audit_ok": true
+ },
+ {
+  "scenario": "bad_config",
+  "seed": 101,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "revert_config",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "revert_config",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 2.05,
+  "impact_s": 8.89,
+  "failed_requests": 167,
+  "close_s": 18.99,
+  "audit_ok": true
+ },
+ {
+  "scenario": "dependency_stuck",
+  "seed": 101,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.64,
+  "impact_s": 10.12,
+  "failed_requests": 197,
+  "close_s": 20.32,
+  "audit_ok": true
+ },
+ {
+  "scenario": "process_crash",
+  "seed": 101,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 2.08,
+  "impact_s": 8.69,
+  "failed_requests": 175,
+  "close_s": 18.87,
+  "audit_ok": true
+ },
+ {
+  "scenario": "external_dependency",
+  "seed": 101,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.04,
+  "impact_s": 12.5,
+  "failed_requests": 236,
+  "close_s": 8.27,
+  "audit_ok": true
+ },
+ {
+  "scenario": "restart_ineffective",
+  "seed": 101,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.24,
+  "impact_s": 54.35,
+  "failed_requests": 1050,
+  "close_s": 50.27,
+  "audit_ok": true
+ },
+ {
+  "scenario": "transient_blip",
+  "seed": 101,
+  "state": "SELF_RESOLVED",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.24,
+  "impact_s": 4.8,
+  "failed_requests": 78,
+  "close_s": 9.17,
+  "audit_ok": true
+ },
+ {
+  "scenario": "client_error_burst",
+  "seed": 101,
+  "state": "NONE",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": null,
+  "naive_ok": true,
+  "detect_s": null,
+  "impact_s": 0.0,
+  "failed_requests": 0,
+  "close_s": null,
+  "audit_ok": true
+ },
+ {
+  "scenario": "bad_release",
+  "seed": 102,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "rollback_release",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 1.98,
+  "impact_s": 8.95,
+  "failed_requests": 175,
+  "close_s": 19.1,
+  "audit_ok": true
+ },
+ {
+  "scenario": "bad_config",
+  "seed": 102,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "revert_config",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "revert_config",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 2.05,
+  "impact_s": 9.0,
+  "failed_requests": 176,
+  "close_s": 19.11,
+  "audit_ok": true
+ },
+ {
+  "scenario": "dependency_stuck",
+  "seed": 102,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.65,
+  "impact_s": 10.17,
+  "failed_requests": 201,
+  "close_s": 20.33,
+  "audit_ok": true
+ },
+ {
+  "scenario": "process_crash",
+  "seed": 102,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 2.1,
+  "impact_s": 8.69,
+  "failed_requests": 175,
+  "close_s": 18.87,
+  "audit_ok": true
+ },
+ {
+  "scenario": "external_dependency",
+  "seed": 102,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.03,
+  "impact_s": 12.25,
+  "failed_requests": 239,
+  "close_s": 8.23,
+  "audit_ok": true
+ },
+ {
+  "scenario": "restart_ineffective",
+  "seed": 102,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 1.74,
+  "impact_s": 53.85,
+  "failed_requests": 1043,
+  "close_s": 49.7,
+  "audit_ok": true
+ },
+ {
+  "scenario": "transient_blip",
+  "seed": 102,
+  "state": "SELF_RESOLVED",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 1.74,
+  "impact_s": 4.79,
+  "failed_requests": 78,
+  "close_s": 8.65,
+  "audit_ok": true
+ },
+ {
+  "scenario": "client_error_burst",
+  "seed": 102,
+  "state": "NONE",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": null,
+  "naive_ok": true,
+  "detect_s": null,
+  "impact_s": 0.0,
+  "failed_requests": 0,
+  "close_s": null,
+  "audit_ok": true
+ },
+ {
+  "scenario": "bad_release",
+  "seed": 103,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "rollback_release",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 1.99,
+  "impact_s": 8.84,
+  "failed_requests": 165,
+  "close_s": 18.98,
+  "audit_ok": true
+ },
+ {
+  "scenario": "bad_config",
+  "seed": 103,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "revert_config",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "revert_config",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 1.98,
+  "impact_s": 8.9,
+  "failed_requests": 165,
+  "close_s": 19.03,
+  "audit_ok": true
+ },
+ {
+  "scenario": "dependency_stuck",
+  "seed": 103,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "rollback_release",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.63,
+  "impact_s": 10.18,
+  "failed_requests": 199,
+  "close_s": 20.33,
+  "audit_ok": true
+ },
+ {
+  "scenario": "process_crash",
+  "seed": 103,
+  "state": "RESOLVED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "checkout"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": true,
+  "detect_s": 2.08,
+  "impact_s": 8.69,
+  "failed_requests": 175,
+  "close_s": 18.86,
+  "audit_ok": true
+ },
+ {
+  "scenario": "external_dependency",
+  "seed": 103,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 2.04,
+  "impact_s": 12.25,
+  "failed_requests": 226,
+  "close_s": 8.26,
+  "audit_ok": true
+ },
+ {
+  "scenario": "restart_ineffective",
+  "seed": 103,
+  "state": "ESCALATED",
+  "final_ok": true,
+  "root_ok": true,
+  "cause_ok": true,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [
+   [
+    "restart",
+    "inventory"
+   ]
+  ],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 1.79,
+  "impact_s": 53.85,
+  "failed_requests": 1041,
+  "close_s": 49.79,
+  "audit_ok": true
+ },
+ {
+  "scenario": "transient_blip",
+  "seed": 103,
+  "state": "SELF_RESOLVED",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": [
+   "restart",
+   "checkout"
+  ],
+  "naive_ok": false,
+  "detect_s": 1.75,
+  "impact_s": 4.8,
+  "failed_requests": 79,
+  "close_s": 8.67,
+  "audit_ok": true
+ },
+ {
+  "scenario": "client_error_burst",
+  "seed": 103,
+  "state": "NONE",
+  "final_ok": true,
+  "root_ok": null,
+  "cause_ok": null,
+  "action_ok": true,
+  "wrong_actions": 0,
+  "actions": [],
+  "naive": null,
+  "naive_ok": true,
+  "detect_s": null,
+  "impact_s": 0.0,
+  "failed_requests": 0,
+  "close_s": null,
+  "audit_ok": true
+ }
+]
