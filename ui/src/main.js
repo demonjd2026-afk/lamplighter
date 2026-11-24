@@ -132,7 +132,7 @@ let labReady = false, busy = false;
 async function sendFault(name, label) {
   try {
     const response = await fetch("/v1/demo/scenarios/" + name, { method: "POST", headers: { "X-Lamplighter-Demo": "1" } });
-    $("lab-note").textContent = response.ok ? "Sent: " + label.toLowerCase() + ". Watch the street, then read the case below." : response.status === 409 ? "Wait for the open incident to close first." : "That did not work (" + response.status + ").";
+    $("lab-note").textContent = response.ok ? (name === "reset" ? "The shop is being reset." : "Sent: " + label.toLowerCase() + ". Watch the street; the incident console below fills in as it works.") : response.status === 409 ? "Wait for the open incident to close first." : "That did not work (" + response.status + ").";
   } catch (error) { $("lab-note").textContent = "Could not reach the demo."; }
 }
 async function loadLab() {
@@ -173,28 +173,23 @@ function track(incident) {
   return h("ol", { class: "track" }, items);
 }
 
-function hypothesis(hyp, acceptedId) {
-  const accepted = hyp.id === acceptedId;
-  return h("section", { class: "hyp" + (accepted ? " accepted" : "") },
-    h("header", {}, h("b", {}, sentence(hyp.summary)), h("span", { class: "verdict" + (accepted ? " yes" : "") }, accepted ? "Accepted" : hyp.accepted ? "Also passes" : "Ruled out")),
-    h("ul", { class: "checks" }, hyp.checks.map((check) =>
-      h("li", { class: check.passed ? "pass" : "fail" },
-        h("b", {}, sentence(check.name) + (check.required ? "" : " (supporting)")),
-        h("span", {}, sentence(check.detail)), h("code", {}, check.evidence.join(" "))))));
+// ---------- the incident console: one framed panel per question a responder asks ----------
+function panel(title, tag, tone, ...body) {
+  return h("section", { class: "panel" + (tone ? " " + tone : "") },
+    h("header", {}, h("h3", {}, title), tag ? h("span", { class: "chip " + (tone || "") }, tag) : null), ...body);
 }
-
-function proofs(data) {
-  const items = [], pre = data.preflight;
-  if (pre) {
-    if (pre.control) items.push(h("li", {}, h("b", {}, "Control"), "In a sandbox copy of the broken state, " + pre.control.failing_reproduced + " of " + pre.control.failing_total + " failing requests failed again."));
-    if (pre.fix) items.push(h("li", { class: pre.fix.passed ? "" : "no" }, h("b", {}, "Fix"), "With the fix applied, " + pre.fix.failing.passed + " of " + pre.fix.failing.total + " were served, and " + pre.fix.golden.passed + " of " + pre.fix.golden.total + " healthy requests came back identical."));
-    if (!pre.control && !pre.fix) items.push(h("li", { class: pre.passed ? "" : "no" }, h("b", {}, "Before acting"), sentence(pre.note || "")));
-  }
-  for (const check of (data.verify || {}).checks || []) {
-    items.push(h("li", { class: check.healthy ? "" : "no" }, h("b", {}, "Live, " + clock(check.checked_at)),
-      check.window.bad + " bad of " + check.window.total + " requests, " + check.recurrence + " repeats of the error."));
-  }
-  return items.length ? h("ul", { class: "proofs" }, items) : h("p", { class: "quiet" }, "Nothing has been changed, so there is nothing to prove yet.");
+function rows(pairs) {
+  return h("dl", { class: "rows" }, pairs.filter(Boolean).map(([key, value]) => h("div", {}, h("dt", {}, key), h("dd", {}, value))));
+}
+function meter(label, done, total, tone) {
+  const bar = h("i", {}); bar.style.width = (total ? (100 * done) / total : 0) + "%";
+  return h("div", { class: "meter " + tone }, h("div", {}, h("span", {}, label), h("b", {}, done + " / " + total)), h("div", { class: "rail-bar" }, bar));
+}
+function checks(hyp) {
+  return h("ul", { class: "checks" }, hyp.checks.map((check) =>
+    h("li", { class: check.passed ? "pass" : "fail" },
+      h("b", {}, sentence(check.name) + (check.required ? "" : " (supporting)")),
+      h("span", {}, sentence(check.detail)), h("code", {}, check.evidence.join(" ")))));
 }
 
 async function decide(incident, decision) {
@@ -204,52 +199,96 @@ async function decide(incident, decision) {
   refresh();
 }
 
-function renderDetail(incident) {
+function renderDetail(incident, now) {
   const data = incident.data, diagnosis = data.diagnosis || { hypotheses: [] }, outcome = data.outcome || {};
   const accepted = diagnosis.hypotheses.find((hyp) => hyp.id === diagnosis.accepted);
-  const evidence = (data.bundle || {}).items || [];
-  const nodes = [
-    h("p", { class: "meta" }, incident.id + ", first failure at " + clock((data.bundle || {}).onset)),
-    h("h2", { class: "lead" }, sentence(accepted ? accepted.summary : "working out what happened to " + incident.service)),
-    track(incident),
-    h("dl", { class: "facts" },
-      h("div", {}, h("dt", {}, "Noticed after"), h("dd", {}, outcome.time_to_detect_s != null ? outcome.time_to_detect_s.toFixed(1) + " s" : "...")),
-      h("div", {}, h("dt", {}, "Closed after"), h("dd", {}, outcome.time_to_close_s != null ? outcome.time_to_close_s.toFixed(1) + " s" : "open")),
-      h("div", {}, h("dt", {}, "Action"), h("dd", {}, data.plan ? data.plan.kind.replace("_", " ") : "none")),
-      h("div", {}, h("dt", {}, "Decided by"), h("dd", {}, data.policy ? (data.policy.verdict === "auto" ? "policy" : data.policy.verdict === "approval" ? "a human" : "nobody") : "..."))),
-  ];
-  if (outcome.reason) nodes.push(h("p", { class: "outcome" }, sentence(outcome.reason) + (data.plan ? ". Plan: " + describePlan(data.plan) + "." : ".")));
-  if (incident.state === "AWAITING_APPROVAL") {
-    nodes.push(h("p", { class: "actions" }, h("button", { class: "go", type: "button", onclick: () => decide(incident, "approved") }, "Approve: " + describePlan(data.plan)),
-      h("button", { class: "no", type: "button", onclick: () => decide(incident, "rejected") }, "Reject")));
-  }
-  const why = h("div", {}, h("h3", {}, "Why it thinks so"), ...diagnosis.hypotheses.map((hyp) => hypothesis(hyp, diagnosis.accepted)));
-  if (!diagnosis.hypotheses.length) why.append(h("p", { class: "quiet" }, "Collecting evidence."));
-  const EVENTS = { diagnosed: "Diagnosed; plan made", approval_requested: "Asked a human to approve", approved: "Approved", preflight_passed: "Fix rehearsed in a sandbox",
-    gate_passed: "Still failing, plan still valid", action_done: "Fix applied", proof_failed: "Proof failed; undoing", closed: CLOSED[incident.state] || "Closed" };
-  const side = h("div", {}, h("h3", {}, "What happened, step by step"),
-    h("ul", { class: "steps" }, [h("li", {}, h("time", {}, clock((data.bundle || {}).onset)), "First customer request failed"),
-      h("li", {}, h("time", {}, clock(incident.opened_at)), "Lamplighter noticed")].concat(data.timeline.map((step) =>
-      h("li", {}, h("time", {}, clock(step.ts)), EVENTS[step.event] || step.event)))),
-    h("h3", {}, "Proof"), proofs(data));
+  const others = diagnosis.hypotheses.filter((hyp) => hyp !== accepted);
+  const bundle = data.bundle || {}, evidence = bundle.items || [], root = diagnosis.root, alert = data.alert || {};
+  const burn = evidence.find((item) => item.kind === "slo_burn"), pre = data.preflight, plan = data.plan;
+  const closed = CLOSED[incident.state], tone = incident.state === "ESCALATED" ? "bad" : closed ? "good" : "live";
+  const elapsed = incident.closed_at ? outcome.time_to_close_s : bundle.onset ? now - bundle.onset : null;
+  const keep = new Set([...document.querySelectorAll("#detail details[open]")].map((d) => d.dataset.key));
+  const drawer = (key, label, ...body) => { const d = h("details", { "data-key": key }, h("summary", {}, label), ...body); d.open = keep.has(key); return d; };
+
+  const head = h("header", { class: "console-head " + tone },
+    h("span", { class: "chip " + tone }, closed || "In progress"),
+    h("h2", {}, sentence(accepted ? accepted.summary : "working out what happened to " + incident.service)),
+    h("div", { class: "console-meta" }, h("span", {}, incident.id), h("b", {}, elapsed != null ? elapsed.toFixed(1) + " s" : "...")));
+
+  const tiles = h("dl", { class: "facts" },
+    h("div", {}, h("dt", {}, "Noticed after"), h("dd", {}, outcome.time_to_detect_s != null ? outcome.time_to_detect_s.toFixed(1) + " s" : bundle.onset ? (incident.opened_at - bundle.onset).toFixed(1) + " s" : "...")),
+    h("div", {}, h("dt", {}, closed ? "Closed after" : "Elapsed"), h("dd", {}, elapsed != null ? elapsed.toFixed(1) + " s" : "...")),
+    h("div", {}, h("dt", {}, "Customer requests failed"), h("dd", {}, burn ? burn.data.bad + " of " + burn.data.requests : "...")),
+    h("div", {}, h("dt", {}, "Action taken"), h("dd", {}, (incident.actions || []).some((a) => a.status === "DONE") && plan ? plan.kind.replace("_", " ") : "none")));
+
+  const trigger = panel("1. Trigger", alert.burn_short ? "burn x" + Math.round(alert.burn_short) : null, "bad",
+    h("p", { class: "say" }, burn ? sentence(burn.summary) + "." : "An alert opened this incident."),
+    rows([["First failure", clock(bundle.onset)], ["Noticed", clock(incident.opened_at)],
+      ["Promise", alert.slo ? (alert.slo.target * 100) + "% of requests served" : "-"],
+      ["Error budget", alert.burn_short ? "burning " + Math.round(alert.burn_short) + " times too fast" : "-"]]));
+
+  const cause = panel("2. Root cause", accepted ? accepted.checks.filter((c) => c.passed).length + " of " + accepted.checks.length + " checks" : diagnosis.verdict || "working", accepted ? "good" : "live",
+    h("p", { class: "say" }, accepted ? sentence(accepted.summary) + "." : sentence(diagnosis.reason || "collecting evidence") + "."),
+    root ? h("ol", { class: "path" }, root.path.map((name, index) => h("li", { class: index === root.path.length - 1 ? "end" : "" }, name))) : null,
+    rows([["Where it starts", root ? root.service : "-"], accepted ? ["Kind of cause", accepted.cause_class.replace(/_/g, " ")] : null,
+      accepted && accepted.change_id ? ["Linked change", accepted.change_id] : null]));
+
+  const policy = data.policy;
+  const decision = panel("3. Decision", policy ? (policy.verdict === "auto" ? "automatic" : policy.verdict === "approval" ? "needs approval" : "no action") : null, policy && policy.verdict === "deny" ? "bad" : "good",
+    h("p", { class: "say" }, plan ? sentence(describePlan(plan)) + "." : "No automated action."),
+    rows([["Allowed by", policy ? sentence(policy.reasons.join("; ")) : "-"],
+      ["Rehearsal", pre ? (pre.applicable === false ? "not possible for a restart" : pre.passed ? "passed" : "failed") : "-"],
+      plan && plan.inverse ? ["If it fails", "undo: " + (plan.inverse.kind === "deploy" ? "redeploy " + plan.inverse.release : "restore " + plan.inverse.value)] : null]),
+    incident.state === "AWAITING_APPROVAL" ? h("p", { class: "actions" }, h("button", { class: "go", type: "button", onclick: () => decide(incident, "approved") }, "Approve"),
+      h("button", { class: "no", type: "button", onclick: () => decide(incident, "rejected") }, "Reject")) : null);
+
+  const evidencePanel = panel("4. Checks behind the diagnosis", accepted ? "accepted" : null, "good",
+    accepted ? checks(accepted) : h("p", { class: "quiet" }, "No single cause has passed all its checks yet."),
+    others.length ? drawer("others", others.length + " other " + (others.length === 1 ? "cause" : "causes") + " considered", ...others.map((hyp) =>
+      h("div", { class: "other" }, h("b", {}, sentence(hyp.summary)), h("span", { class: "chip" + (hyp.accepted ? " live" : "") }, hyp.accepted ? "also passes" : "ruled out"), checks(hyp)))) : null);
+
+  const live = (data.verify || {}).checks || [];
+  const proof = panel("5. Proof", live.length && live.slice(-2).every((c) => c.healthy) && closed ? "proven" : pre || live.length ? "in progress" : null, "good",
+    pre && pre.control ? h("div", {}, h("h4", {}, "Before acting, in a sandbox"),
+      meter("Failure reproduced in the broken state", pre.control.failing_reproduced, pre.control.failing_total, "bad"),
+      pre.fix ? meter("Failing requests served with the fix", pre.fix.failing.passed, pre.fix.failing.total, "good") : null,
+      pre.fix ? meter("Healthy requests answered identically", pre.fix.golden.passed, pre.fix.golden.total, "good") : null) : null,
+    pre && !pre.control ? h("p", { class: "quiet" }, sentence(pre.note || "")) : null,
+    live.length ? h("div", {}, h("h4", {}, "After acting, on live traffic"),
+      h("ul", { class: "windows" }, live.map((check) => h("li", { class: check.healthy ? "ok" : "no" },
+        h("time", {}, clock(check.checked_at)), check.window.bad + " bad of " + check.window.total + ", " + check.recurrence + " repeats")))) : null,
+    !pre && !live.length ? h("p", { class: "quiet" }, "Nothing has been changed, so there is nothing to prove yet.") : null);
+
+  const EVENTS = { diagnosed: "diagnosed, plan made", approval_requested: "asked a human to approve", approved: "approved by a human", preflight_passed: "fix rehearsed in a sandbox",
+    gate_passed: "still failing, plan still valid", action_done: "fix applied", proof_failed: "proof failed, undoing", closed: (closed || "closed").toLowerCase() };
+  const log = panel("6. Activity log", null, "",
+    h("ol", { class: "log" }, [[bundle.onset, "first customer request failed"], [incident.opened_at, "lamplighter noticed"]]
+      .concat(data.timeline.map((step) => [step.ts, EVENTS[step.event] || step.event])).filter(([ts]) => ts)
+      .map(([ts, text]) => h("li", {}, h("time", {}, clock(ts)), h("span", {}, text)))));
+
+  const extra = [];
   if (data.fixforward) {
     const brief = data.fixforward, frame = brief.culprit.frame, patch = brief.patch;
-    side.append(h("h3", {}, "The line that broke"),
-      h("p", {}, frame ? [brief.file + ", line " + frame.line + ", in " + frame.func + ". ", brief.culprit.in_changed_code ? "This release added it." : "This release did not change it."] : "No stack frame was captured."),
+    extra.push(panel("7. The line that broke", patch.status === "plausible" ? "patch suggested" : null, "live",
+      h("p", { class: "say" }, frame ? brief.file + ", line " + frame.line + ", in " + frame.func + ". " + (brief.culprit.in_changed_code ? "This release added it." : "This release did not change it.") : "No stack frame was captured."),
       h("pre", {}, patch.diff || (brief.culprit.hunk ? brief.culprit.hunk.text : brief.culprit.diff)),
-      h("p", { class: "quiet" }, "Suggested patch from the model: " + patch.status.replace("_", " ") + ". " + sentence(patch.reason || "")));
+      h("p", { class: "quiet" }, "Model patch: " + patch.status.replace("_", " ") + ". " + sentence(patch.reason || ""))));
   }
   if (data.narrative && (data.narrative.narrative.length || data.narrative.next_steps.length)) {
-    side.append(h("h3", {}, "In plain words"), h("p", { class: "quiet" }, "Written by a model. " + (data.narrative.dropped_ungrounded === 1 ? "1 unsupported sentence was" : data.narrative.dropped_ungrounded + " unsupported sentences were") + " removed."),
-      h("ul", { class: "proofs" }, data.narrative.narrative.slice(0, 8).concat(data.narrative.next_steps.slice(0, 4)).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" "))))));
+    const dropped = data.narrative.dropped_ungrounded;
+    extra.push(panel("8. Model notes", dropped + " removed", "",
+      h("p", { class: "quiet" }, "Written by a language model. " + (dropped === 1 ? "1 unsupported sentence was" : dropped + " unsupported sentences were") + " filtered out."),
+      h("ul", { class: "notes" }, data.narrative.narrative.slice(0, 6).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" "))))),
+      data.narrative.next_steps.length ? drawer("next", "Suggested next steps", h("ul", { class: "notes" }, data.narrative.next_steps.slice(0, 4).map((s) => h("li", {}, s.text + " ", h("code", {}, s.evidence.join(" ")))))) : null));
   }
-  nodes.push(h("div", { class: "split" }, why, side));
-  const open = document.querySelector("#detail details") ? document.querySelector("#detail details").open : false;
-  const drawer = h("details", {}, h("summary", {}, "All " + evidence.length + " pieces of evidence"),
-    h("ul", { class: "evidence" }, evidence.map((item) => h("li", {}, h("code", {}, item.id), item.summary))));
-  drawer.open = open;
-  nodes.push(drawer, h("p", { class: "foot" }, incident.audit.length + " audit entries, chain head " + (incident.audit.length ? incident.audit[incident.audit.length - 1].hash.slice(0, 16) : "-")));
-  $("detail").replaceChildren(...nodes);
+  $("detail").replaceChildren(head, track(incident), tiles,
+    outcome.reason ? h("p", { class: "outcome " + tone }, sentence(outcome.reason) + ".") : null,
+    h("div", { class: "grid three" }, trigger, cause, decision),
+    h("div", { class: "grid two" }, evidencePanel, proof),
+    h("div", { class: "grid " + (extra.length ? "two" : "one") }, log, ...extra.slice(0, 1)),
+    ...extra.slice(1),
+    drawer("evidence", "All " + evidence.length + " pieces of evidence", h("ul", { class: "evidence" }, evidence.map((item) => h("li", {}, h("code", {}, item.id), item.summary)))),
+    h("p", { class: "foot" }, incident.audit.length + " audit entries, chain head " + (incident.audit.length ? incident.audit[incident.audit.length - 1].hash.slice(0, 16) : "-")));
 }
 
 // ---------- loop ----------
@@ -274,7 +313,7 @@ async function refresh() {
     }
     if (street && status.topology) street.update(status.topology, root);
     headline(status, newest);
-    if (selected) renderDetail(newest && newest.id === selected ? newest : await api("/v1/incidents/" + selected));
+    if (selected) renderDetail(newest && newest.id === selected ? newest : await api("/v1/incidents/" + selected), status.now);
   } catch (error) {
     $("headline").textContent = "Cannot reach Lamplighter";
     $("subline").textContent = error.message;
