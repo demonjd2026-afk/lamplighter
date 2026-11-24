@@ -1,7 +1,9 @@
 # Lamplighter
 
-<!-- Demo thumbnail goes here once the video is recorded:
-[![Watch the demo](docs/thumbnail.png)](https://www.youtube.com/watch?v=VIDEO_ID) -->
+[![Watch the Lamplighter demo on YouTube](docs/thumbnail.png)](https://youtu.be/LVmSNv-wg_0)
+
+**[Watch the demo on YouTube](https://youtu.be/LVmSNv-wg_0)** (2 min 26 s): a broken release is fixed and proven in 20
+seconds, then a failure it cannot fix is handed to a human.
 
 **An on-call engineer that has to prove its work.** Lamplighter watches a running system, finds the root
 cause of a failure, ships the fix, and proves on recorded and live traffic that the fix worked. When it
@@ -36,7 +38,7 @@ fault, and scores the response against ground truth. Full table and limits: [doc
 |---|---|---|
 | Correct response over 24 runs (8 fault scenarios x 3) | 24/24 | 12/24 |
 | Wrong actions taken | 0 | not executed, decision only |
-| Median time to detect (resolved incidents) | 2.1 s after the first failed request | |
+| Median time to detect (resolved incidents) | about 2 s after the first failed request | |
 | Median customer-visible impact (resolved incidents) | 8.9 s | |
 
 These numbers come from the demo's timing profile, where windows are scaled down to seconds, on one small
@@ -142,7 +144,8 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 
 ## AI tools, models and libraries used
 
-- **Building:** Claude (Anthropic) was used as a coding assistant for design, implementation and tests.
+- **Building:** Claude (Anthropic) was used as a coding assistant for design, implementation and tests, and to
+  capture and edit the demo video. The voice-over is my own.
 - **At run time:** no model is bundled or required. Optionally, any model reachable through the Anthropic
   Messages API or an OpenAI-compatible chat completions endpoint; the model id is supplied by the user.
   The model path was exercised with `claude-haiku-5-5`.
@@ -154,6 +157,12 @@ Details, the tests behind each control, and what is not covered: [docs/THREAT_MO
 - **Design references:** OpenRCA, ITBench, a 2026 failure analysis of LLM root-cause agents, the program
   repair literature on test overfitting, and the Google SRE Workbook on SLO alerting. Links are in
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#sources-for-the-design-position).
+
+## About the demo video
+
+The video shows one real session of the demo shop, recorded with `claude-haiku-5-5` switched on: the incidents,
+timings, model notes and patch on screen are what that run produced. The dashboard was rendered frame by frame
+from that recording, because the machine used for capture has no graphics card.
 
 ## What I would add next
 
@@ -173,6 +182,9 @@ eval/              fault scenarios with ground truth, the lab, both evaluation r
 ui/                dashboard source (three.js scene and HUD); builds the committed bundle
 tests/             unit, security and end-to-end tests
 docs/              architecture, threat model, evaluation, model evaluation
+LICENSE            MIT
 ```
 
-MIT licence.
+## Licence
+
+MIT. See [LICENSE](LICENSE). Copyright (c) 2026 Jayanth Dolai.
